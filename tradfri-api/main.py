@@ -98,6 +98,7 @@ BRIGHTNESS_OFF_THRESHOLD = 12
 
 # Built-in effects seeded into custom_effects.json on first run
 BUILTIN_EFFECTS: dict[str, dict] = {
+    # ── Brightness breathing ───────────────────────────────────────────────────
     "slow breathe": {
         "steps": [
             {"type": "brightness", "brightness": 8,   "duration": 2.0},
@@ -111,6 +112,165 @@ BUILTIN_EFFECTS: dict[str, dict] = {
             {"type": "brightness", "brightness": 180, "duration": 4.0},
         ],
         "loop": True,
+    },
+    "fast pulse": {
+        "steps": [
+            {"type": "brightness", "brightness": 20,  "duration": 0.4},
+            {"type": "brightness", "brightness": 200, "duration": 0.4},
+        ],
+        "loop": True,
+    },
+    "heartbeat": {
+        # double-bump like a heartbeat: two quick pulses then a long rest
+        "steps": [
+            {"type": "brightness", "brightness": 220, "duration": 0.15},
+            {"type": "brightness", "brightness": 60,  "duration": 0.15},
+            {"type": "brightness", "brightness": 220, "duration": 0.15},
+            {"type": "brightness", "brightness": 20,  "duration": 1.4},
+        ],
+        "loop": True,
+    },
+    # ── Colour cycling ─────────────────────────────────────────────────────────
+    "rainbow slow": {
+        "steps": [
+            {"type": "color", "hue": 0,   "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 45,  "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 90,  "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 150, "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 200, "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 240, "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 290, "saturation": 90, "duration": 2.0},
+            {"type": "color", "hue": 330, "saturation": 90, "duration": 2.0},
+        ],
+        "loop": True,
+    },
+    "rainbow fast": {
+        "steps": [
+            {"type": "color", "hue": 0,   "saturation": 90, "duration": 0.5},
+            {"type": "color", "hue": 60,  "saturation": 90, "duration": 0.5},
+            {"type": "color", "hue": 120, "saturation": 90, "duration": 0.5},
+            {"type": "color", "hue": 180, "saturation": 90, "duration": 0.5},
+            {"type": "color", "hue": 240, "saturation": 90, "duration": 0.5},
+            {"type": "color", "hue": 300, "saturation": 90, "duration": 0.5},
+        ],
+        "loop": True,
+    },
+    "red blue strobe": {
+        "steps": [
+            {"type": "color",      "hue": 0,   "saturation": 95, "duration": 0.05},
+            {"type": "brightness", "brightness": 220,             "duration": 0.05},
+            {"type": "color",      "hue": 240, "saturation": 95, "duration": 0.05},
+            {"type": "brightness", "brightness": 220,             "duration": 0.05},
+        ],
+        "loop": True,
+    },
+    # ── Colour breathe ─────────────────────────────────────────────────────────
+    "blue breathe": {
+        "steps": [
+            {"type": "color",      "hue": 240, "saturation": 90, "duration": 0.5},
+            {"type": "brightness", "brightness": 10,              "duration": 2.5},
+            {"type": "brightness", "brightness": 180,             "duration": 2.5},
+        ],
+        "loop": True,
+    },
+    "red breathe": {
+        "steps": [
+            {"type": "color",      "hue": 0,   "saturation": 90, "duration": 0.5},
+            {"type": "brightness", "brightness": 10,              "duration": 2.5},
+            {"type": "brightness", "brightness": 180,             "duration": 2.5},
+        ],
+        "loop": True,
+    },
+    "purple breathe": {
+        "steps": [
+            {"type": "color",      "hue": 280, "saturation": 85, "duration": 0.5},
+            {"type": "brightness", "brightness": 10,              "duration": 2.5},
+            {"type": "brightness", "brightness": 180,             "duration": 2.5},
+        ],
+        "loop": True,
+    },
+    # ── Ambience / mood ────────────────────────────────────────────────────────
+    "candle flicker": {
+        # random-ish warm flicker simulation using uneven durations
+        "steps": [
+            {"type": "brightness", "brightness": 80,  "duration": 0.1},
+            {"type": "brightness", "brightness": 120, "duration": 0.2},
+            {"type": "brightness", "brightness": 60,  "duration": 0.15},
+            {"type": "brightness", "brightness": 110, "duration": 0.3},
+            {"type": "brightness", "brightness": 45,  "duration": 0.1},
+            {"type": "brightness", "brightness": 100, "duration": 0.25},
+            {"type": "brightness", "brightness": 130, "duration": 0.4},
+            {"type": "brightness", "brightness": 70,  "duration": 0.15},
+        ],
+        "loop": True,
+    },
+    "sunset fade": {
+        # slowly transitions from cool white → warm amber → deep red over ~2 min (run once)
+        "steps": [
+            {"type": "color", "hue": 45,  "saturation": 60, "duration": 20.0},
+            {"type": "color", "hue": 30,  "saturation": 75, "duration": 20.0},
+            {"type": "color", "hue": 20,  "saturation": 85, "duration": 20.0},
+            {"type": "color", "hue": 10,  "saturation": 90, "duration": 20.0},
+            {"type": "color", "hue": 5,   "saturation": 95, "duration": 20.0},
+            {"type": "brightness", "brightness": 40, "duration": 20.0},
+        ],
+        "loop": False,
+    },
+    "ocean": {
+        "steps": [
+            {"type": "color",      "hue": 200, "saturation": 80, "duration": 3.0},
+            {"type": "brightness", "brightness": 80,              "duration": 3.0},
+            {"type": "color",      "hue": 220, "saturation": 85, "duration": 3.0},
+            {"type": "brightness", "brightness": 160,             "duration": 3.0},
+            {"type": "color",      "hue": 185, "saturation": 75, "duration": 3.0},
+            {"type": "brightness", "brightness": 110,             "duration": 3.0},
+        ],
+        "loop": True,
+    },
+    "northern lights": {
+        "steps": [
+            {"type": "color",      "hue": 160, "saturation": 80, "duration": 4.0},
+            {"type": "brightness", "brightness": 60,              "duration": 2.0},
+            {"type": "color",      "hue": 200, "saturation": 85, "duration": 4.0},
+            {"type": "brightness", "brightness": 130,             "duration": 2.0},
+            {"type": "color",      "hue": 280, "saturation": 80, "duration": 4.0},
+            {"type": "brightness", "brightness": 80,              "duration": 2.0},
+            {"type": "color",      "hue": 140, "saturation": 75, "duration": 4.0},
+            {"type": "brightness", "brightness": 110,             "duration": 2.0},
+        ],
+        "loop": True,
+    },
+    # ── Wake-up / wind-down ────────────────────────────────────────────────────
+    "wake up": {
+        # 5-minute gradual sunrise simulation (run once)
+        "steps": [
+            {"type": "on",         "duration": 2.0},
+            {"type": "color",      "hue": 5,    "saturation": 90, "duration": 5.0},
+            {"type": "brightness", "brightness": 5,                "duration": 5.0},
+            {"type": "color",      "hue": 20,   "saturation": 80, "duration": 60.0},
+            {"type": "brightness", "brightness": 40,               "duration": 60.0},
+            {"type": "color",      "hue": 35,   "saturation": 70, "duration": 60.0},
+            {"type": "brightness", "brightness": 100,              "duration": 60.0},
+            {"type": "color",      "hue": 45,   "saturation": 55, "duration": 60.0},
+            {"type": "brightness", "brightness": 180,              "duration": 60.0},
+            {"type": "color",      "hue": 50,   "saturation": 30, "duration": 60.0},
+            {"type": "brightness", "brightness": 254,              "duration": 60.0},
+        ],
+        "loop": False,
+    },
+    "wind down": {
+        # gradually dims to deep red over 10 minutes then off (run once)
+        "steps": [
+            {"type": "color",      "hue": 30,  "saturation": 70, "duration": 60.0},
+            {"type": "brightness", "brightness": 160,              "duration": 60.0},
+            {"type": "color",      "hue": 15,  "saturation": 85, "duration": 60.0},
+            {"type": "brightness", "brightness": 100,              "duration": 60.0},
+            {"type": "color",      "hue": 5,   "saturation": 95, "duration": 60.0},
+            {"type": "brightness", "brightness": 50,               "duration": 60.0},
+            {"type": "brightness", "brightness": 15,               "duration": 120.0},
+            {"type": "off",        "duration": 3.0},
+        ],
+        "loop": False,
     },
 }
 
