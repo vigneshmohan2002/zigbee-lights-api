@@ -242,25 +242,14 @@ BUILTIN_EFFECTS: dict[str, dict] = {
     },
     # ── Wake-up / wind-down ────────────────────────────────────────────────────
     "wake up": {
-        # ~8-minute gradual sunrise simulation (run once)
-        # Starts with a visible deep red so you immediately see something,
-        # then slowly transitions through orange → warm white → bright daylight
+        # Breathe in a warm sunny yellow-orange to wake you up
         "steps": [
             {"type": "on",         "duration": 1.0},
-            {"type": "color",      "hue": 5,    "saturation": 95, "duration": 3.0},
-            {"type": "brightness", "brightness": 20,               "duration": 10.0},
-            {"type": "color",      "hue": 10,   "saturation": 90, "duration": 60.0},
-            {"type": "brightness", "brightness": 60,               "duration": 60.0},
-            {"type": "color",      "hue": 20,   "saturation": 80, "duration": 60.0},
-            {"type": "brightness", "brightness": 110,              "duration": 60.0},
-            {"type": "color",      "hue": 35,   "saturation": 65, "duration": 60.0},
-            {"type": "brightness", "brightness": 170,              "duration": 60.0},
-            {"type": "color",      "hue": 45,   "saturation": 40, "duration": 60.0},
-            {"type": "brightness", "brightness": 220,              "duration": 60.0},
-            {"type": "color",      "hue": 50,   "saturation": 20, "duration": 60.0},
-            {"type": "brightness", "brightness": 254,              "duration": 60.0},
+            {"type": "color",      "hue": 40, "saturation": 80, "duration": 1.0},
+            {"type": "brightness", "brightness": 30,  "duration": 2.0},
+            {"type": "brightness", "brightness": 220, "duration": 2.0},
         ],
-        "loop": False,
+        "loop": True,
     },
     "wind down": {
         # gradually dims to deep red over 10 minutes then off (run once)
