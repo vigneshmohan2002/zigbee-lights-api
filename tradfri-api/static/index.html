@@ -3,28 +3,34 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Lights</title>
+  <title>Home</title>
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#111114">
+  <meta name="theme-color" content="#0d0d12">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:       #111114;
-      --card:     #1e1e22;
-      --card2:    #28282d;
-      --card3:    #323238;
-      --border:   rgba(255,255,255,0.07);
+      --bg:       #0d0d12;
+      --card:     #18181f;
+      --card2:    #212128;
+      --card3:    #2c2c35;
+      --border:   rgba(255,255,255,0.06);
+      --border2:  rgba(255,255,255,0.10);
       --text:     #f2f2f7;
       --dim:      #8e8e93;
-      --dim2:     #48484a;
+      --dim2:     #3a3a40;
       --gold:     #f5a623;
-      --gold-bg:  rgba(245,166,35,0.12);
-      --green:    #30d158;
-      --red:      #ff453a;
-      --radius:   18px;
-      --radius-s: 12px;
+      --gold2:    #e8951a;
+      --gold-bg:  rgba(245,166,35,0.13);
+      --gold-glow:rgba(245,166,35,0.25);
+      --purple:   #7c6af7;
+      --purple-bg:rgba(124,106,247,0.15);
+      --green:    #32d74b;
+      --red:      #ff375f;
+      --blue:     #0a84ff;
+      --r:        20px;
+      --r-s:      14px;
       --safe-t: env(safe-area-inset-top,    0px);
       --safe-b: env(safe-area-inset-bottom, 0px);
       --safe-l: env(safe-area-inset-left,   0px);
@@ -32,115 +38,236 @@
     }
     html { background: var(--bg); }
     body {
-      min-height: 100vh;
+      min-height: 100dvh;
       background: var(--bg);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
-      padding: calc(var(--safe-t) + 4px) var(--safe-r) calc(var(--safe-b) + 32px) var(--safe-l);
       overflow-x: hidden;
+      padding-bottom: calc(72px + var(--safe-b));
     }
 
-    /* ── Header ── */
-    header {
-      display: flex; align-items: center; justify-content: space-between;
-      padding: 16px 20px 20px;
+    /* ── Tab pages ── */
+    .page { display: none; padding-top: calc(var(--safe-t) + 8px); }
+    .page.active { display: block; }
+
+    /* ── Bottom nav ── */
+    nav {
+      position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+      background: rgba(13,13,18,0.85);
+      backdrop-filter: blur(20px) saturate(180%);
+      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      border-top: 1px solid var(--border);
+      display: flex;
+      padding-bottom: var(--safe-b);
     }
-    header h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.6px; }
-    #dot { width: 8px; height: 8px; border-radius: 50%; background: var(--dim2); transition: background .4s; }
-    #dot.ok  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+    .nav-tab {
+      flex: 1; display: flex; flex-direction: column; align-items: center;
+      gap: 3px; padding: 10px 0 8px; border: none; background: none;
+      cursor: pointer; color: var(--dim); transition: color .2s;
+    }
+    .nav-tab.active { color: var(--gold); }
+    .nav-icon { font-size: 22px; line-height: 1; }
+    .nav-label { font-size: 10px; font-weight: 600; letter-spacing: .02em; }
+
+    /* ── Header ── */
+    .page-header {
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 12px 20px 20px;
+    }
+    .page-title { font-size: 32px; font-weight: 700; letter-spacing: -0.8px; }
+    .page-sub   { font-size: 14px; color: var(--dim); margin-top: 2px; }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    #dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dim2); transition: background .4s; flex-shrink:0; }
+    #dot.ok  { background: var(--green); box-shadow: 0 0 8px var(--green); }
     #dot.err { background: var(--red); }
 
     /* ── Section ── */
-    .sec { padding: 0 16px 20px; }
+    .sec { padding: 0 16px 28px; }
     .sec-head {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     .sec-label {
-      font-size: 11px; font-weight: 700; letter-spacing: .08em;
+      font-size: 11px; font-weight: 700; letter-spacing: .09em;
       text-transform: uppercase; color: var(--dim);
     }
     .add-btn {
-      background: var(--card2); border: 1px solid var(--border);
-      color: var(--gold); border-radius: 8px; padding: 4px 12px;
+      background: var(--card2); border: 1px solid var(--border2);
+      color: var(--gold); border-radius: 10px; padding: 5px 13px;
       font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: background .15s;
+      transition: background .15s, transform .1s;
     }
-    .add-btn:active { background: var(--card3); }
+    .add-btn:active { background: var(--card3); transform: scale(.95); }
 
-    /* ── Groups ── */
-    .groups-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .group-card {
-      background: var(--card); border-radius: var(--radius);
-      padding: 16px; border: 1px solid var(--border);
+    /* ── Master brightness card ── */
+    .master-card {
+      margin: 0 16px 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 18px 20px;
     }
-    .group-name { font-weight: 600; font-size: 14px; margin-bottom: 12px; text-transform: capitalize; }
-    .group-btns { display: flex; gap: 6px; }
-    .btn-on, .btn-off {
-      flex: 1; border: none; border-radius: 10px; font-size: 14px;
-      font-weight: 600; cursor: pointer; padding: 10px 0; min-height: 40px;
-      transition: opacity .15s, transform .1s;
+    .master-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 14px;
     }
-    .btn-on:active, .btn-off:active { opacity: .65; transform: scale(.96); }
-    .btn-on  { background: var(--gold); color: #000; }
-    .btn-off { background: var(--card2); color: var(--dim); }
+    .master-title { font-size: 15px; font-weight: 600; }
+    .master-pct   { font-size: 28px; font-weight: 700; letter-spacing: -1px; color: var(--gold); }
+    .master-slider-wrap { display: flex; align-items: center; gap: 10px; }
+    .master-icon  { font-size: 16px; color: var(--dim); }
 
-    /* ── Pill row ── */
-    .pill-row {
-      display: flex; gap: 8px; overflow-x: auto; padding-bottom: 2px;
-      scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    /* ── Range inputs ── */
+    input[type=range] {
+      -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px;
+      background: var(--card3); outline: none; cursor: pointer;
     }
-    .pill-row::-webkit-scrollbar { display: none; }
-
-    .pill {
-      flex-shrink: 0; padding: 9px 18px; border-radius: 999px;
-      border: 1px solid var(--border); background: var(--card);
-      color: var(--text); font-size: 14px; font-weight: 500;
-      cursor: pointer; white-space: nowrap; min-height: 38px;
-      transition: background .15s, border-color .15s, transform .1s;
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
+      background: var(--gold); cursor: pointer;
+      box-shadow: 0 2px 8px rgba(0,0,0,.4), 0 0 0 3px rgba(245,166,35,.2);
     }
-    .pill:active { transform: scale(.95); }
-    .pill.sel  { background: var(--gold); color: #000; border-color: var(--gold); }
-    .pill.sel2 { background: #6e3aed; color: #fff; border-color: #6e3aed; }
+    input[type=range]::-webkit-slider-runnable-track { border-radius: 3px; }
 
-    /* ── Colors ── */
-    .colors-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; }
-    .color-swatch {
-      aspect-ratio: 1; max-height: 90px; border-radius: 14px; border: 2px solid transparent;
-      cursor: pointer; transition: transform .15s, border-color .15s;
+    /* ── Room cards ── */
+    .rooms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .room-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px; cursor: pointer;
+      transition: border-color .25s, background .25s, transform .1s;
       position: relative; overflow: hidden;
     }
-    .color-swatch:active { transform: scale(.92); }
-    .color-swatch.sel { border-color: #fff; }
-    .color-label {
-      position: absolute; bottom: 5px; left: 0; right: 0;
-      text-align: center; font-size: 10px; font-weight: 600;
-      color: rgba(255,255,255,.85); text-shadow: 0 1px 3px rgba(0,0,0,.6);
-      text-transform: capitalize;
+    .room-card.on {
+      border-color: rgba(245,166,35,.3);
+      background: linear-gradient(145deg, rgba(245,166,35,.08) 0%, var(--card) 60%);
+    }
+    .room-card:active { transform: scale(.97); }
+    .room-icon {
+      font-size: 28px; line-height: 1; margin-bottom: 10px; display: block;
+    }
+    .room-name {
+      font-size: 14px; font-weight: 600; text-transform: capitalize; margin-bottom: 10px;
+    }
+    .room-btns { display: flex; gap: 6px; }
+    .r-btn {
+      flex: 1; border: none; border-radius: 10px; font-size: 13px;
+      font-weight: 600; cursor: pointer; padding: 9px 0;
+      transition: opacity .15s, transform .1s;
+    }
+    .r-btn:active { opacity: .65; transform: scale(.96); }
+    .r-btn.on  { background: var(--gold); color: #000; }
+    .r-btn.off { background: var(--card2); color: var(--dim); border: 1px solid var(--border); }
+
+    /* ── Quick profiles ── */
+    .profiles-scroll {
+      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .profiles-scroll::-webkit-scrollbar { display: none; }
+    .profile-card {
+      flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
+      gap: 6px; background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r-s); padding: 14px 16px; cursor: pointer;
+      min-width: 76px;
+      transition: background .15s, border-color .15s, transform .1s;
+    }
+    .profile-card:active { transform: scale(.94); }
+    .profile-card.sel  { background: var(--gold-bg); border-color: var(--gold); }
+    .profile-icon { font-size: 22px; line-height: 1; }
+    .profile-name { font-size: 12px; font-weight: 600; color: var(--dim); white-space: nowrap; text-transform: capitalize; }
+    .profile-card.sel .profile-name { color: var(--gold); }
+
+    /* ── Scene grid ── */
+    .scenes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .scene-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px; cursor: pointer;
+      display: flex; align-items: center; gap: 12px;
+      transition: background .15s, border-color .15s, transform .1s;
+      position: relative;
+    }
+    .scene-card:active { transform: scale(.96); }
+    .scene-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
+    .scene-info { flex: 1; min-width: 0; }
+    .scene-name { font-size: 14px; font-weight: 600; text-transform: capitalize; }
+    .scene-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
+    .star-btn {
+      background: none; border: none; cursor: pointer; font-size: 14px;
+      color: var(--dim2); padding: 2px; line-height: 1;
+    }
+    .star-btn.on { color: var(--gold); }
+    .scene-del {
+      background: none; border: none; cursor: pointer; font-size: 16px;
+      color: var(--dim2); padding: 2px; line-height: 1; transition: color .15s;
+    }
+    .scene-del:active { color: var(--red); }
+    .scenes-divider {
+      font-size: 11px; font-weight: 700; letter-spacing: .09em;
+      text-transform: uppercase; color: var(--dim);
+      margin: 20px 0 12px;
     }
 
-    /* ── Lights ── */
-    .lights-list { display: flex; flex-direction: column; gap: 2px; }
+    /* ── Colour swatches ── */
+    .colors-scroll {
+      display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px;
+      scrollbar-width: none; -webkit-overflow-scrolling: touch;
+    }
+    .colors-scroll::-webkit-scrollbar { display: none; }
+    .color-pill {
+      flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
+      cursor: pointer; transition: transform .15s;
+    }
+    .color-pill:active { transform: scale(.9); }
+    .color-circle {
+      width: 52px; height: 52px; border-radius: 50%;
+      border: 3px solid transparent; transition: border-color .15s, transform .15s;
+    }
+    .color-pill.sel .color-circle { border-color: #fff; transform: scale(1.1); }
+    .color-name { font-size: 11px; font-weight: 600; color: var(--dim); text-transform: capitalize; }
+
+    /* ── Effects ── */
+    .effects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
+    .effect-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); padding: 16px; cursor: pointer;
+      transition: background .15s, border-color .15s, transform .1s;
+      position: relative;
+    }
+    .effect-card:active { transform: scale(.96); }
+    .effect-card.sel { background: var(--purple-bg); border-color: var(--purple); }
+    .effect-icon { font-size: 24px; line-height: 1; margin-bottom: 8px; }
+    .effect-name { font-size: 13px; font-weight: 600; text-transform: capitalize; line-height: 1.3; }
+    .effect-type { font-size: 11px; color: var(--dim); margin-top: 3px; }
+    .effect-del {
+      position: absolute; top: 8px; right: 8px;
+      background: none; border: none; cursor: pointer; font-size: 16px;
+      color: var(--dim2); padding: 2px; transition: color .15s;
+    }
+    .effect-del:active { color: var(--red); }
+
+    /* ── Individual lights ── */
     .light-card {
-      background: var(--card); border-radius: var(--radius);
-      border: 1px solid var(--border); overflow: hidden;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: var(--r); margin-bottom: 10px; overflow: hidden;
       transition: border-color .3s;
     }
-    .light-card.on { border-color: rgba(245,166,35,.3); }
-    .light-row { display: flex; align-items: center; padding: 14px 16px; gap: 12px; }
-    .light-dot {
-      width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0;
-      background: var(--dim2); transition: background .3s, box-shadow .3s;
+    .light-card.on { border-color: rgba(245,166,35,.25); }
+    .light-row {
+      display: flex; align-items: center; padding: 16px 18px; gap: 14px;
     }
-    .light-card.on .light-dot {
-      background: var(--gold);
-      box-shadow: 0 0 8px rgba(245,166,35,.7);
+    .light-orb {
+      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+      background: var(--dim2); display: flex; align-items: center; justify-content: center;
+      font-size: 18px; transition: background .3s, box-shadow .3s;
+    }
+    .light-card.on .light-orb {
+      background: radial-gradient(circle at 40% 40%, #ffe08a, var(--gold));
+      box-shadow: 0 0 16px rgba(245,166,35,.5);
     }
     .light-info { flex: 1; min-width: 0; }
-    .light-name { font-weight: 600; font-size: 15px; text-transform: capitalize; }
-    .light-sub  { font-size: 12px; color: var(--dim); margin-top: 2px; }
+    .light-name { font-size: 15px; font-weight: 600; text-transform: capitalize; }
+    .light-sub  { font-size: 12px; color: var(--dim); margin-top: 3px; }
     .toggle {
       width: 51px; height: 31px; border-radius: 999px; border: none;
       background: var(--dim2); cursor: pointer; position: relative; flex-shrink: 0;
@@ -154,298 +281,361 @@
     }
     .light-card.on .toggle { background: var(--gold); }
     .light-card.on .toggle::after { transform: translateX(20px); }
-    .br-row { padding: 0 16px 14px; }
-    input[type=range] {
-      -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px;
-      background: var(--card3); outline: none; cursor: pointer;
-    }
-    input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
-      background: var(--gold); cursor: pointer; box-shadow: 0 2px 6px rgba(0,0,0,.3);
-    }
+    .light-slider-row { padding: 0 18px 14px; }
 
     /* ── Add forms ── */
     .add-form {
       display: none; flex-direction: column; gap: 10px;
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--radius); padding: 14px; margin-bottom: 12px;
+      background: var(--card); border: 1px solid var(--border2);
+      border-radius: var(--r); padding: 16px; margin-bottom: 14px;
     }
     .add-form.open { display: flex; }
     .form-row { display: flex; gap: 8px; align-items: center; }
     .field {
       flex: 1; background: var(--card2); border: 1px solid var(--border);
-      border-radius: 10px; padding: 10px 12px; color: var(--text);
-      font-size: 14px; outline: none; min-height: 42px;
+      border-radius: 12px; padding: 11px 14px; color: var(--text);
+      font-size: 14px; outline: none; min-height: 44px;
+      transition: border-color .2s;
     }
     .field:focus { border-color: var(--gold); }
-    .field-label { font-size: 12px; color: var(--dim); min-width: 70px; }
-    .form-actions { display: flex; gap: 8px; margin-top: 2px; }
+    select.field { cursor: pointer; }
+    .field-label { font-size: 12px; color: var(--dim); min-width: 78px; flex-shrink: 0; }
+    .form-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .form-actions { display: flex; gap: 8px; margin-top: 4px; }
     .f-btn {
-      flex: 1; border: none; border-radius: 10px; font-size: 14px;
-      font-weight: 600; cursor: pointer; padding: 10px 0; min-height: 40px;
-      transition: opacity .15s;
+      flex: 1; border: none; border-radius: 12px; font-size: 14px;
+      font-weight: 600; cursor: pointer; padding: 12px 0;
+      transition: opacity .15s, transform .1s;
     }
-    .f-btn:active { opacity: .7; }
-    .f-btn.primary { background: var(--gold); color: #000; }
-    .f-btn.secondary { background: var(--card2); color: var(--dim); }
-    .f-btn.capture { background: var(--card3); color: var(--text); font-size: 13px; }
+    .f-btn:active { opacity: .7; transform: scale(.97); }
+    .f-btn.primary   { background: var(--gold); color: #000; }
+    .f-btn.secondary { background: var(--card2); color: var(--dim); border: 1px solid var(--border); }
+    .f-btn.capture   { background: var(--card3); color: var(--text); font-size: 13px; }
 
-    /* ── Item with delete ── */
-    .item-wrap { display: inline-flex; align-items: center; gap: 3px; flex-shrink: 0; }
-    .del-btn {
+    /* ── Effect builder steps ── */
+    .step-row {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--card2); border-radius: 10px; padding: 9px 12px;
+    }
+    .step-type-badge {
+      font-size: 11px; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .06em; color: var(--gold); min-width: 64px;
+    }
+    .step-desc { font-size: 13px; flex: 1; }
+    .step-dur  { font-size: 12px; color: var(--dim); }
+    .step-del  {
       background: none; border: 1px solid var(--border); color: var(--dim);
       border-radius: 50%; width: 22px; height: 22px; cursor: pointer;
       font-size: 14px; line-height: 1; flex-shrink: 0;
       transition: color .15s, border-color .15s;
     }
-    .del-btn:active { color: var(--red); border-color: var(--red); }
+    .step-del:active { color: var(--red); border-color: var(--red); }
 
-    /* ── Star ── */
-    .star { background: none; border: none; cursor: pointer; font-size: 15px;
-      padding: 2px; color: var(--dim2); flex-shrink: 0; line-height: 1; }
-    .star.on { color: var(--gold); }
-
-    .more-btn {
-      background: none; border: none; color: var(--dim);
-      font-size: 12px; font-weight: 500; cursor: pointer;
-      padding: 6px 0 0; letter-spacing: .02em;
-    }
+    /* ── Empty state ── */
+    .empty { color: var(--dim); font-size: 13px; padding: 8px 0; }
 
     /* ── Divider ── */
-    .sep { height: 1px; background: var(--border); margin: 0 16px 20px; }
+    .sep { height: 1px; background: var(--border); margin: 0 16px 28px; }
   </style>
 </head>
 <body>
 
-<header>
-  <h1>Lights</h1>
-  <div id="dot"></div>
-</header>
+<!-- ── Bottom nav ───────────────────────────────────────── -->
+<nav>
+  <button class="nav-tab active" onclick="switchTab('home',this)">
+    <span class="nav-icon">🏠</span>
+    <span class="nav-label">Home</span>
+  </button>
+  <button class="nav-tab" onclick="switchTab('scenes',this)">
+    <span class="nav-icon">🎬</span>
+    <span class="nav-label">Scenes</span>
+  </button>
+  <button class="nav-tab" onclick="switchTab('effects',this)">
+    <span class="nav-icon">✨</span>
+    <span class="nav-label">Effects</span>
+  </button>
+  <button class="nav-tab" onclick="switchTab('lights',this)">
+    <span class="nav-icon">💡</span>
+    <span class="nav-label">Lights</span>
+  </button>
+</nav>
 
-<!-- Master brightness -->
-<div class="sec" style="padding-bottom:12px">
-  <div style="display:flex;align-items:center;gap:14px">
-    <span style="font-size:18px;line-height:1">☀</span>
-    <input type="range" min="1" max="254" value="127" id="master-bri"
-      style="flex:1"
-      oninput="setMasterBri(this.value)"
-      onpointerdown="_masterTouched=Date.now()"
-      ontouchstart="_masterTouched=Date.now()">
-    <span id="master-bri-pct" style="font-size:13px;color:var(--dim);min-width:32px;text-align:right">50%</span>
+<!-- ══════════════ HOME ══════════════ -->
+<div class="page active" id="page-home">
+  <div class="page-header">
+    <div>
+      <div class="page-title" id="greeting">Good evening</div>
+      <div class="page-sub">Bedroom</div>
+    </div>
+    <div class="header-right">
+      <div id="dot"></div>
+    </div>
+  </div>
+
+  <!-- Master brightness -->
+  <div class="master-card">
+    <div class="master-top">
+      <div class="master-title">Brightness</div>
+      <div class="master-pct" id="master-bri-pct">50%</div>
+    </div>
+    <div class="master-slider-wrap">
+      <span class="master-icon">🌑</span>
+      <input type="range" min="1" max="254" value="127" id="master-bri"
+        style="flex:1"
+        oninput="setMasterBri(this.value)"
+        onpointerdown="_masterTouched=Date.now()"
+        ontouchstart="_masterTouched=Date.now()">
+      <span class="master-icon">☀️</span>
+    </div>
+  </div>
+
+  <!-- Rooms -->
+  <div class="sec">
+    <div class="sec-label" style="margin-bottom:14px">Rooms</div>
+    <div class="rooms-grid" id="groups"></div>
+  </div>
+
+  <!-- Profiles -->
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-label">Mood</div>
+      <button class="add-btn" onclick="switchTab('scenes',document.querySelectorAll(\'.nav-tab\')[1])">Scenes →</button>
+    </div>
+    <div class="profiles-scroll" id="profiles"></div>
   </div>
 </div>
 
-<!-- Groups -->
-<div class="sec">
-  <div class="sec-label" style="margin-bottom:12px">Rooms</div>
-  <div class="groups-grid" id="groups"></div>
-</div>
-
-<div class="sep"></div>
-
-<!-- Profiles -->
-<div class="sec">
-  <div class="sec-head">
-    <div class="sec-label">Profiles</div>
-    <button class="add-btn" onclick="toggleForm('profile-form')">+ Add</button>
-  </div>
-  <div class="add-form" id="profile-form">
-    <input class="field" id="pf-name" placeholder="Name (e.g. Study)">
-    <div class="form-row">
-      <span class="field-label">Brightness</span>
-      <input class="field" id="pf-bri" type="number" min="0" max="254" placeholder="0–254">
-    </div>
-    <div class="form-row">
-      <span class="field-label">Colour temp</span>
-      <input class="field" id="pf-ct" type="number" min="150" max="500" placeholder="250 cool → 454 warm">
-    </div>
-    <div class="form-actions">
-      <button class="f-btn capture" onclick="captureProfile()">Capture current</button>
-      <button class="f-btn secondary" onclick="toggleForm('profile-form')">Cancel</button>
-      <button class="f-btn primary" onclick="saveProfile()">Save</button>
-    </div>
-  </div>
-  <div class="pill-row" id="profiles"></div>
-</div>
-
-<div class="sep"></div>
-
-<!-- Scenes -->
-<div class="sec">
-  <div class="sec-head">
-    <div class="sec-label">Scenes</div>
+<!-- ══════════════ SCENES ══════════════ -->
+<div class="page" id="page-scenes">
+  <div class="page-header">
+    <div class="page-title">Scenes</div>
     <button class="add-btn" onclick="toggleForm('scene-form')">+ Add</button>
   </div>
-  <div class="add-form" id="scene-form">
-    <input class="field" id="sc-name" placeholder="Name (e.g. Gaming)">
-    <div class="form-row">
-      <span class="field-label">Brightness</span>
-      <input class="field" id="sc-bri" type="number" min="0" max="254" placeholder="0–254">
-    </div>
-    <div class="form-row">
-      <span class="field-label">Colour temp</span>
-      <input class="field" id="sc-ct" type="number" min="150" max="500" placeholder="mireds (optional)">
-    </div>
-    <div class="form-row">
-      <span class="field-label">Hue</span>
-      <input class="field" id="sc-hue" type="number" min="0" max="360" placeholder="0–360 (optional)">
-      <span class="field-label" style="min-width:50px">Sat</span>
-      <input class="field" id="sc-sat" type="number" min="0" max="100" placeholder="0–100">
-    </div>
-    <div class="form-actions">
-      <button class="f-btn capture" onclick="captureScene()">Capture current</button>
-      <button class="f-btn secondary" onclick="toggleForm('scene-form')">Cancel</button>
-      <button class="f-btn primary" onclick="saveScene()">Save</button>
-    </div>
-  </div>
-  <div class="pill-row" id="scenes-fav" style="margin-bottom:8px"></div>
-  <div id="scenes-more-wrap" style="display:none;margin-bottom:8px">
-    <div class="pill-row" id="scenes-more"></div>
-  </div>
-  <button class="more-btn" id="scenes-more-btn" onclick="toggleMoreScenes()">More ▾</button>
-</div>
 
-<div class="sep"></div>
-
-<!-- Colors -->
-<div class="sec">
-  <div class="sec-label" style="margin-bottom:12px">Colours</div>
-  <div class="colors-grid" id="colors"></div>
-</div>
-
-<div class="sep"></div>
-
-<!-- Effects -->
-<div class="sec">
-  <div class="sec-head">
-    <div class="sec-label">Effects</div>
-    <button class="add-btn" onclick="toggleForm('effect-form')">+ Add</button>
-  </div>
-  <div class="add-form" id="effect-form">
-    <input class="field" id="ef-name" placeholder="Effect name (e.g. Blue pulse)">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
-      <span style="font-size:12px;color:var(--dim)">Loop</span>
-      <input type="checkbox" id="ef-loop" checked style="width:18px;height:18px;accent-color:var(--gold)">
-    </div>
-
-    <!-- Steps list -->
-    <div id="ef-steps-list" style="display:flex;flex-direction:column;gap:6px;margin-bottom:8px"></div>
-
-    <!-- Add step row -->
-    <div style="background:var(--card2);border-radius:10px;padding:10px;display:flex;flex-direction:column;gap:8px">
-      <div class="form-row" style="flex-wrap:wrap;gap:6px">
-        <select class="field" id="ef-step-type" onchange="renderStepFields()" style="min-width:110px;flex:none">
-          <option value="brightness">Brightness</option>
-          <option value="color">Colour</option>
-          <option value="wait">Wait</option>
-          <option value="on">On</option>
-          <option value="off">Off</option>
-        </select>
-        <div id="ef-step-bri-fields" style="display:flex;gap:6px;flex:1;min-width:0">
-          <input class="field" id="ef-step-bri" type="number" min="1" max="254" placeholder="Brightness 1–254" style="flex:1">
-        </div>
-        <div id="ef-step-col-fields" style="display:none;gap:6px;flex:1">
-          <input class="field" id="ef-step-hue" type="number" min="0" max="360" placeholder="Hue 0–360" style="flex:1">
-          <input class="field" id="ef-step-sat" type="number" min="0" max="100" placeholder="Sat 90" style="flex:1">
-        </div>
-        <input class="field" id="ef-step-dur" type="number" min="0.1" step="0.1" placeholder="Duration (s)" value="1" style="width:110px;flex:none">
-        <button class="f-btn primary" style="flex:none;padding:0 14px" onclick="addStep()">+ Step</button>
+  <div class="sec">
+    <div class="add-form" id="scene-form">
+      <div class="form-title">New Scene</div>
+      <input class="field" id="sc-name" placeholder="Name  (e.g. Gaming)">
+      <div class="form-row">
+        <span class="field-label">Brightness</span>
+        <input class="field" id="sc-bri" type="number" min="0" max="254" placeholder="0–254">
+      </div>
+      <div class="form-row">
+        <span class="field-label">Colour temp</span>
+        <input class="field" id="sc-ct" type="number" min="150" max="500" placeholder="250 cool → 454 warm">
+      </div>
+      <div class="form-row">
+        <span class="field-label">Hue</span>
+        <input class="field" id="sc-hue" type="number" min="0" max="360" placeholder="0–360">
+        <span class="field-label" style="min-width:36px">Sat</span>
+        <input class="field" id="sc-sat" type="number" min="0" max="100" placeholder="90">
+      </div>
+      <div class="form-actions">
+        <button class="f-btn capture" onclick="captureScene()">Capture</button>
+        <button class="f-btn secondary" onclick="toggleForm('scene-form')">Cancel</button>
+        <button class="f-btn primary" onclick="saveScene()">Save</button>
       </div>
     </div>
 
-    <div class="form-actions" style="margin-top:4px">
-      <button class="f-btn secondary" onclick="clearEffectForm();toggleForm('effect-form')">Cancel</button>
-      <button class="f-btn primary" onclick="saveCustomEffect()">Save effect</button>
+    <!-- Favourites -->
+    <div class="sec-label" style="margin-bottom:12px">Favourites</div>
+    <div class="scenes-grid" id="scenes-fav"></div>
+
+    <!-- All scenes -->
+    <div id="scenes-rest-wrap">
+      <div class="scenes-divider">All Scenes</div>
+      <div class="scenes-grid" id="scenes-more"></div>
     </div>
+
+    <!-- Colours -->
+    <div class="scenes-divider" style="margin-top:24px">Colours</div>
+    <div class="colors-scroll" id="colors"></div>
+
+    <!-- Profile management -->
+    <div class="scenes-divider" style="margin-top:24px">Profiles</div>
+    <div class="add-form" id="profile-form" style="margin-bottom:12px">
+      <div class="form-title">New Profile</div>
+      <input class="field" id="pf-name" placeholder="Name  (e.g. Study)">
+      <div class="form-row">
+        <span class="field-label">Brightness</span>
+        <input class="field" id="pf-bri" type="number" min="0" max="254" placeholder="0–254">
+      </div>
+      <div class="form-row">
+        <span class="field-label">Colour temp</span>
+        <input class="field" id="pf-ct" type="number" min="150" max="500" placeholder="250–454">
+      </div>
+      <div class="form-actions">
+        <button class="f-btn capture" onclick="captureProfile()">Capture</button>
+        <button class="f-btn secondary" onclick="toggleForm('profile-form')">Cancel</button>
+        <button class="f-btn primary" onclick="saveProfile()">Save</button>
+      </div>
+    </div>
+    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
+      <button class="add-btn" onclick="toggleForm('profile-form')">+ Profile</button>
+    </div>
+    <div class="profiles-scroll" id="profiles-full"></div>
   </div>
-  <div class="pill-row" id="effects"></div>
 </div>
 
-<div class="sep"></div>
+<!-- ══════════════ EFFECTS ══════════════ -->
+<div class="page" id="page-effects">
+  <div class="page-header">
+    <div class="page-title">Effects</div>
+    <button class="add-btn" onclick="toggleForm('effect-form')">+ Add</button>
+  </div>
 
-<!-- Lights -->
-<div class="sec">
-  <div class="sec-label" style="margin-bottom:12px">Lights</div>
-  <div class="lights-list" id="lights"></div>
+  <div class="sec">
+    <div class="add-form" id="effect-form">
+      <div class="form-title">New Effect</div>
+      <input class="field" id="ef-name" placeholder="Name  (e.g. Blue pulse)">
+      <div style="display:flex;align-items:center;gap:10px">
+        <span style="font-size:13px;color:var(--dim)">Loop</span>
+        <input type="checkbox" id="ef-loop" checked style="width:20px;height:20px;accent-color:var(--gold)">
+      </div>
+
+      <div id="ef-steps-list" style="display:flex;flex-direction:column;gap:6px"></div>
+
+      <!-- Step builder -->
+      <div style="background:var(--card2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px">
+        <div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.07em">Add step</div>
+        <div class="form-row" style="flex-wrap:wrap;gap:8px">
+          <select class="field" id="ef-step-type" onchange="renderStepFields()" style="min-width:120px;flex:none">
+            <option value="brightness">Brightness</option>
+            <option value="color">Colour</option>
+            <option value="wait">Wait</option>
+            <option value="on">On</option>
+            <option value="off">Off</option>
+          </select>
+          <div id="ef-step-bri-fields" style="display:flex;gap:6px;flex:1;min-width:120px">
+            <input class="field" id="ef-step-bri" type="number" min="1" max="254" placeholder="Brightness 1–254">
+          </div>
+          <div id="ef-step-col-fields" style="display:none;gap:6px;flex:1;min-width:180px">
+            <input class="field" id="ef-step-hue" type="number" min="0" max="360" placeholder="Hue 0–360">
+            <input class="field" id="ef-step-sat" type="number" min="0" max="100" placeholder="Sat 90">
+          </div>
+          <input class="field" id="ef-step-dur" type="number" min="0.1" step="0.1" value="1" placeholder="Sec" style="width:80px;flex:none">
+          <button class="f-btn primary" style="flex:none;padding:0 18px" onclick="addStep()">+ Step</button>
+        </div>
+      </div>
+
+      <div class="form-actions">
+        <button class="f-btn secondary" onclick="clearEffectForm();toggleForm('effect-form')">Cancel</button>
+        <button class="f-btn primary" onclick="saveCustomEffect()">Save effect</button>
+      </div>
+    </div>
+
+    <!-- Firmware effects -->
+    <div class="sec-label" style="margin-bottom:14px">Firmware</div>
+    <div class="effects-grid" id="effects-firmware"></div>
+
+    <!-- User effects -->
+    <div class="sec-label" style="margin-bottom:14px;margin-top:4px">Custom</div>
+    <div class="effects-grid" id="effects-user"></div>
+  </div>
+</div>
+
+<!-- ══════════════ LIGHTS ══════════════ -->
+<div class="page" id="page-lights">
+  <div class="page-header">
+    <div class="page-title">Lights</div>
+  </div>
+  <div class="sec">
+    <div id="lights"></div>
+  </div>
 </div>
 
 <script>
+// ── Tab navigation ────────────────────────────────────────
+function switchTab(id, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// ── API helper ────────────────────────────────────────────
 const api = (p, m='GET', b) => fetch(p, {
   method: m,
   headers: b ? {'Content-Type':'application/json'} : {},
   body: b ? JSON.stringify(b) : undefined,
 }).then(r => r.ok ? r.json() : Promise.reject(r));
 
-// ── Helpers ──────────────────────────────────────────────
 function toggleForm(id) {
-  const el = document.getElementById(id);
-  el.classList.toggle('open');
+  document.getElementById(id).classList.toggle('open');
 }
 
-function makeItem(label, onApply, onDelete) {
-  const wrap = document.createElement('div');
-  wrap.className = 'item-wrap';
-  const pill = document.createElement('button');
-  pill.className = 'pill';
-  pill.textContent = label;
-  pill.onclick = onApply;
-  wrap.appendChild(pill);
-  if (onDelete) {
-    const d = document.createElement('button');
-    d.className = 'del-btn';
-    d.textContent = '×';
-    d.onclick = onDelete;
-    wrap.appendChild(d);
-  }
-  return wrap;
+// ── Greeting ──────────────────────────────────────────────
+function setGreeting() {
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  document.getElementById('greeting').textContent = g;
 }
 
-// ── Groups ───────────────────────────────────────────────
+// ── Room icons ────────────────────────────────────────────
+const ROOM_ICONS = { bedroom:'🛏️', desk:'🖥️', bedside:'🌙', ambient:'🪴', living:'🛋️', kitchen:'🍳' };
+
+// ── Groups ────────────────────────────────────────────────
 async function loadGroups() {
   const groups = await api('/groups');
   const el = document.getElementById('groups');
   el.innerHTML = '';
-  for (const [name] of Object.entries(groups)) {
-    el.innerHTML += `<div class="group-card">
-      <div class="group-name">${name}</div>
-      <div class="group-btns">
-        <button class="btn-on"  onclick="api('/groups/${name}/on','PUT').then(refresh)">On</button>
-        <button class="btn-off" onclick="api('/groups/${name}/off','PUT').then(refresh)">Off</button>
-      </div>
-    </div>`;
+  for (const name of Object.keys(groups)) {
+    const icon = ROOM_ICONS[name] || '💡';
+    el.innerHTML += `
+      <div class="room-card" id="rcard-${name}">
+        <span class="room-icon">${icon}</span>
+        <div class="room-name">${name}</div>
+        <div class="room-btns">
+          <button class="r-btn on"  onclick="api('/groups/${name}/on','PUT').then(refresh)">On</button>
+          <button class="r-btn off" onclick="api('/groups/${name}/off','PUT').then(refresh)">Off</button>
+        </div>
+      </div>`;
   }
 }
 
-// ── Profiles ─────────────────────────────────────────────
+// ── Profile icons ─────────────────────────────────────────
+const PROFILE_ICONS = {
+  bright:'☀️', focus:'🎯', reading:'📖', relax:'😌',
+  dim:'🌒', night:'🌑', off:'⭕'
+};
+
+function renderProfileCard(name, container, onApply, onDelete) {
+  const icon = PROFILE_ICONS[name] || '💡';
+  const card = document.createElement('div');
+  card.className = 'profile-card';
+  card.id = `pcard-${name}`;
+  card.innerHTML = `<span class="profile-icon">${icon}</span><span class="profile-name">${name}</span>`;
+  card.onclick = () => {
+    document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('sel'));
+    document.querySelectorAll(`[id="pcard-${name}"]`).forEach(c => c.classList.add('sel'));
+    onApply();
+  };
+  container.appendChild(card);
+}
+
 async function loadProfiles() {
   const profiles = await api('/profiles');
-  const el = document.getElementById('profiles');
-  el.innerHTML = '';
+  const el1 = document.getElementById('profiles');
+  const el2 = document.getElementById('profiles-full');
+  el1.innerHTML = ''; el2.innerHTML = '';
   for (const name of Object.keys(profiles)) {
-    el.appendChild(makeItem(name,
-      () => api(`/profiles/${encodeURIComponent(name)}/apply`,'PUT').then(refresh),
+    const apply = () => api(`/profiles/${encodeURIComponent(name)}/apply`,'PUT').then(refresh);
+    renderProfileCard(name, el1, apply, null);
+    renderProfileCard(name, el2, apply,
       () => api(`/profiles/${encodeURIComponent(name)}`, 'DELETE').then(loadProfiles)
-    ));
+    );
   }
 }
 
 async function captureProfile() {
-  const first = _lamp_state_first();
-  if (first) {
-    document.getElementById('pf-bri').value = first.brightness ?? '';
-    document.getElementById('pf-ct').value  = first.color_temp ?? '';
+  const lights = await api('/lights');
+  const on = lights.filter(l => l.brightness != null && l.state === 'ON');
+  if (on.length) {
+    const avg = Math.round(on.reduce((a,b) => a + (b.brightness||0), 0) / on.length);
+    const ct  = on[0].color_temp;
+    document.getElementById('pf-bri').value = avg;
+    if (ct) document.getElementById('pf-ct').value = ct;
   }
-}
-
-function _lamp_state_first() {
-  const cards = document.querySelectorAll('[id^="lcard-"]');
-  for (const c of cards) {
-    if (c.classList.contains('on')) {
-      const sub = c.querySelector('.light-sub')?.textContent || '';
-      return null; // just returns null, real data fetched from API
-    }
-  }
-  return null;
 }
 
 async function saveProfile() {
@@ -454,23 +644,23 @@ async function saveProfile() {
   const ct   = parseInt(document.getElementById('pf-ct').value);
   if (!name || isNaN(bri) || isNaN(ct)) return;
   await api('/profiles', 'POST', {name, brightness: bri, color_temp: ct, transition: 1});
-  document.getElementById('pf-name').value = '';
-  document.getElementById('pf-bri').value  = '';
-  document.getElementById('pf-ct').value   = '';
+  ['pf-name','pf-bri','pf-ct'].forEach(id => document.getElementById(id).value='');
   toggleForm('profile-form');
   loadProfiles();
 }
 
-// ── Scenes ───────────────────────────────────────────────
-const FAV_KEY = 'ls_favs';
+// ── Scene icons ───────────────────────────────────────────
+const SCENE_ICONS = {
+  evening:'🌆', sunrise:'🌅', party:'🎉', pulse:'💓',
+  candlelight:'🕯️', cinema:'🎬', energise:'⚡', relax:'🌿',
+  gaming:'🎮', reading:'📖', chill:'❄️', romance:'🌹'
+};
+
+const FAV_KEY  = 'ls_favs';
 const DEF_FAVS = ['evening','cinema','party'];
 let _allScenes = [];
-let _moreOpen = false;
 
-function getFavs() {
-  try { return JSON.parse(localStorage.getItem(FAV_KEY)) || DEF_FAVS; }
-  catch { return DEF_FAVS; }
-}
+function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || DEF_FAVS; } catch { return DEF_FAVS; } }
 function setFavs(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
 function toggleFav(name) {
   const f = getFavs(), i = f.indexOf(name);
@@ -478,44 +668,41 @@ function toggleFav(name) {
   setFavs(f); renderScenes();
 }
 
-function makeScenePill(name, isFav) {
-  const wrap = document.createElement('div');
-  wrap.className = 'item-wrap';
-  const pill = document.createElement('button');
-  pill.className = 'pill';
-  pill.textContent = name;
-  pill.onclick = () => api(`/scenes/${encodeURIComponent(name)}/apply`,'PUT').then(refresh);
-  const star = document.createElement('button');
-  star.className = 'star' + (isFav ? ' on' : '');
-  star.textContent = isFav ? '★' : '☆';
-  star.onclick = () => toggleFav(name);
-  const del = document.createElement('button');
-  del.className = 'del-btn';
-  del.textContent = '×';
-  del.onclick = () => api(`/scenes/${encodeURIComponent(name)}`, 'DELETE').then(loadScenes);
-  wrap.append(pill, star, del);
-  return wrap;
+function makeSceneCard(name, isFav) {
+  const icon = SCENE_ICONS[name] || '🔆';
+  const card = document.createElement('div');
+  card.className = 'scene-card';
+  card.innerHTML = `
+    <span class="scene-icon">${icon}</span>
+    <div class="scene-info"><div class="scene-name">${name}</div></div>
+    <div class="scene-actions">
+      <button class="star-btn${isFav?' on':''}" title="${isFav?'Unpin':'Pin'}">${isFav?'★':'☆'}</button>
+      <button class="scene-del" title="Delete">×</button>
+    </div>`;
+  card.querySelector('.scene-card')?.addEventListener('click', () => {});
+  card.onclick = (e) => {
+    if (e.target.classList.contains('star-btn')) { toggleFav(name); return; }
+    if (e.target.classList.contains('scene-del')) {
+      api(`/scenes/${encodeURIComponent(name)}`, 'DELETE').then(loadScenes); return;
+    }
+    api(`/scenes/${encodeURIComponent(name)}/apply`, 'PUT').then(refresh);
+  };
+  return card;
 }
 
 function renderScenes() {
   const favs   = getFavs();
   const pinned = _allScenes.filter(n => favs.includes(n));
   const rest   = _allScenes.filter(n => !favs.includes(n));
-  const favEl  = document.getElementById('scenes-fav');
+
+  const favEl = document.getElementById('scenes-fav');
   favEl.innerHTML = '';
-  for (const n of pinned) favEl.appendChild(makeScenePill(n, true));
-  if (!pinned.length) favEl.innerHTML = '<span style="color:var(--dim);font-size:13px">Star scenes to pin them here</span>';
+  if (pinned.length) pinned.forEach(n => favEl.appendChild(makeSceneCard(n, true)));
+  else favEl.innerHTML = '<div class="empty">Star scenes to pin them here</div>';
+
   const moreEl = document.getElementById('scenes-more');
   moreEl.innerHTML = '';
-  for (const n of rest) moreEl.appendChild(makeScenePill(n, false));
-  const btn = document.getElementById('scenes-more-btn');
-  btn.style.display = rest.length ? '' : 'none';
-}
-
-function toggleMoreScenes() {
-  _moreOpen = !_moreOpen;
-  document.getElementById('scenes-more-wrap').style.display = _moreOpen ? 'block' : 'none';
-  document.getElementById('scenes-more-btn').textContent = _moreOpen ? 'Less ▴' : 'More ▾';
+  rest.forEach(n => moreEl.appendChild(makeSceneCard(n, false)));
 }
 
 async function loadScenes() {
@@ -549,32 +736,42 @@ async function saveScene() {
   loadScenes();
 }
 
-// ── Colors ───────────────────────────────────────────────
-// hsl from hue (0-360) at sat 70%, lightness 55%
-function hueToCSS(hue) { return `hsl(${hue},70%,50%)`; }
-
-const COLOR_HUES = {
-  red:0, orange:25, yellow:55, green:120, cyan:180, blue:240, purple:280, pink:320
-};
+// ── Colours ───────────────────────────────────────────────
+const COLOR_HUES = { red:0, orange:25, yellow:55, green:120, cyan:180, blue:240, purple:280, pink:320 };
 
 async function loadColors() {
   const el = document.getElementById('colors');
   el.innerHTML = '';
   for (const [name, hue] of Object.entries(COLOR_HUES)) {
-    const sw = document.createElement('div');
-    sw.className = 'color-swatch';
-    sw.style.background = `linear-gradient(135deg, hsl(${hue},80%,45%), hsl(${hue},70%,30%))`;
-    sw.innerHTML = `<div class="color-label">${name}</div>`;
-    sw.onclick = () => {
-      document.querySelectorAll('.color-swatch').forEach(s => s.classList.remove('sel'));
-      sw.classList.add('sel');
+    const pill = document.createElement('div');
+    pill.className = 'color-pill';
+    const circle = document.createElement('div');
+    circle.className = 'color-circle';
+    circle.style.background = `radial-gradient(circle at 35% 35%, hsl(${hue},90%,65%), hsl(${hue},80%,35%))`;
+    const label = document.createElement('div');
+    label.className = 'color-name';
+    label.textContent = name;
+    pill.append(circle, label);
+    pill.onclick = () => {
+      document.querySelectorAll('.color-pill').forEach(p => p.classList.remove('sel'));
+      pill.classList.add('sel');
       api(`/colors/${name}/apply`, 'PUT').then(refresh);
     };
-    el.appendChild(sw);
+    el.appendChild(pill);
   }
 }
 
-// ── Effects ──────────────────────────────────────────────
+// ── Effects ───────────────────────────────────────────────
+const EFFECT_ICONS = {
+  colorloop:'🌈', stop_colorloop:'⏹️', breathe:'🌬️', blink:'⚡',
+  okay:'✅', finish:'🏁', stop:'⏹️',
+  'slow breathe':'😮‍💨', 'slow breathe long':'💤', 'fast pulse':'💥',
+  heartbeat:'❤️', 'rainbow slow':'🌈', 'rainbow fast':'⚡🌈',
+  'red blue strobe':'🚨', 'blue breathe':'🫧', 'red breathe':'🔴',
+  'purple breathe':'🟣', 'candle flicker':'🕯️', 'sunset fade':'🌇',
+  ocean:'🌊', 'northern lights':'🌌', 'wake up':'☀️', 'wind down':'😴'
+};
+
 let _pendingSteps = [];
 
 function renderStepFields() {
@@ -607,15 +804,17 @@ function renderStepList() {
   el.innerHTML = '';
   _pendingSteps.forEach((step, i) => {
     const row = document.createElement('div');
-    row.style.cssText = 'display:flex;align-items:center;gap:8px;background:var(--card2);border-radius:8px;padding:8px 10px';
-    let desc = `<span style="color:var(--gold);font-size:12px;font-weight:600;min-width:70px">${step.type}</span>`;
-    if (step.brightness != null) desc += `<span style="font-size:13px">bri ${step.brightness}</span>`;
-    if (step.hue        != null) desc += `<span style="font-size:13px">hue ${step.hue}° sat ${step.saturation}</span>`;
-    desc += `<span style="color:var(--dim);font-size:12px;margin-left:auto">${step.duration}s</span>`;
+    row.className = 'step-row';
+    let desc = '';
+    if (step.brightness != null) desc = `bri ${step.brightness}`;
+    else if (step.hue    != null) desc = `hue ${step.hue}° · sat ${step.saturation}`;
     const del = document.createElement('button');
-    del.className = 'del-btn'; del.textContent = '×';
+    del.className = 'step-del'; del.textContent = '×';
     del.onclick = () => { _pendingSteps.splice(i, 1); renderStepList(); };
-    row.innerHTML = desc;
+    row.innerHTML = `
+      <span class="step-type-badge">${step.type}</span>
+      <span class="step-desc">${desc}</span>
+      <span class="step-dur">${step.duration}s</span>`;
     row.appendChild(del);
     el.appendChild(row);
   });
@@ -631,11 +830,7 @@ function clearEffectForm() {
 async function saveCustomEffect() {
   const name = document.getElementById('ef-name').value.trim();
   if (!name || !_pendingSteps.length) return;
-  await api('/effects/custom', 'POST', {
-    name,
-    steps: _pendingSteps,
-    loop: document.getElementById('ef-loop').checked,
-  });
+  await api('/effects/custom', 'POST', { name, steps: _pendingSteps, loop: document.getElementById('ef-loop').checked });
   clearEffectForm();
   toggleForm('effect-form');
   loadEffects();
@@ -643,38 +838,54 @@ async function saveCustomEffect() {
 
 async function loadEffects() {
   const data = await api('/effects');
-  const el = document.getElementById('effects');
-  el.innerHTML = '';
+  const fwEl   = document.getElementById('effects-firmware');
+  const userEl = document.getElementById('effects-user');
+  fwEl.innerHTML = ''; userEl.innerHTML = '';
 
   for (const name of data.firmware) {
-    const pill = document.createElement('button');
-    pill.className = 'pill';
-    pill.textContent = name.replace(/_/g,' ');
-    pill.onclick = () => {
-      document.querySelectorAll('#effects .pill').forEach(p => p.classList.remove('sel2'));
-      pill.classList.add('sel2');
+    const card = document.createElement('div');
+    card.className = 'effect-card';
+    card.innerHTML = `
+      <div class="effect-icon">${EFFECT_ICONS[name] || '✨'}</div>
+      <div class="effect-name">${name.replace(/_/g,' ')}</div>
+      <div class="effect-type">Firmware</div>`;
+    card.onclick = () => {
+      document.querySelectorAll('.effect-card').forEach(c => c.classList.remove('sel'));
+      card.classList.add('sel');
       api(`/effects/${name}/all`, 'PUT');
     };
-    el.appendChild(pill);
+    fwEl.appendChild(card);
   }
 
   for (const [name] of Object.entries(data.user_defined || {})) {
-    el.appendChild(makeItem(
-      `★ ${name}`,
-      () => {
-        document.querySelectorAll('#effects .pill').forEach(p => p.classList.remove('sel2'));
-        api(`/effects/${encodeURIComponent(name)}/all`, 'PUT');
-      },
-      () => api(`/effects/custom/${encodeURIComponent(name)}`, 'DELETE').then(loadEffects)
-    ));
+    const card = document.createElement('div');
+    card.className = 'effect-card';
+    card.innerHTML = `
+      <button class="effect-del" title="Delete">×</button>
+      <div class="effect-icon">${EFFECT_ICONS[name] || '⚙️'}</div>
+      <div class="effect-name">${name}</div>
+      <div class="effect-type">Custom</div>`;
+    card.querySelector('.effect-del').onclick = (e) => {
+      e.stopPropagation();
+      api(`/effects/custom/${encodeURIComponent(name)}`, 'DELETE').then(loadEffects);
+    };
+    card.onclick = () => {
+      document.querySelectorAll('.effect-card').forEach(c => c.classList.remove('sel'));
+      card.classList.add('sel');
+      api(`/effects/${encodeURIComponent(name)}/all`, 'PUT');
+    };
+    userEl.appendChild(card);
   }
+
+  if (!Object.keys(data.user_defined || {}).length)
+    userEl.innerHTML = '<div class="empty">No custom effects yet — tap + Add above</div>';
 }
 
-// ── Lights ───────────────────────────────────────────────
-let _brTimers = {};
+// ── Individual lights ─────────────────────────────────────
+let _brTimers  = {};
 let _brTouched = {};
 let _masterTouched = 0;
-let _masterTimer = null;
+let _masterTimer   = null;
 
 function setMasterBri(val) {
   _masterTouched = Date.now();
@@ -690,34 +901,34 @@ function updateMasterSlider(lights) {
   const avg = Math.round(vals.reduce((a,b) => a+b, 0) / vals.length);
   document.getElementById('master-bri').value = avg;
   document.getElementById('master-bri-pct').textContent = Math.round(avg / 2.54) + '%';
-} // name → timestamp of last user interaction
-const BR_LOCK_MS = 3000; // suppress MQTT updates to slider for this long after touch
+}
 
 function renderLights(lights) {
-  const el = document.getElementById('lights');
+  const el  = document.getElementById('lights');
   const now = Date.now();
   for (const light of lights) {
     if (light.brightness == null && light.color_temp == null) continue;
     const isOn = light.state === 'ON';
-    const sub = [
-      light.brightness != null ? `${Math.round(light.brightness/2.54)}%` : null,
-      light.color?.hue != null ? `${Math.round(light.color.hue)}° hue` : (light.color_temp != null ? `${light.color_temp} m` : null),
-    ].filter(Boolean).join(' · ');
+    const pct  = light.brightness != null ? `${Math.round(light.brightness/2.54)}%` : null;
+    const col  = light.color?.hue != null
+      ? `${Math.round(light.color.hue)}° hue`
+      : (light.color_temp != null ? `${light.color_temp} K` : null);
+    const sub  = [pct, col].filter(Boolean).join(' · ');
 
     let card = document.getElementById(`lcard-${light.name}`);
     if (!card) {
-      const w = document.createElement('div');
-      w.innerHTML = `
+      const wrap = document.createElement('div');
+      wrap.innerHTML = `
         <div class="light-card${isOn?' on':''}" id="lcard-${light.name}">
           <div class="light-row">
-            <div class="light-dot"></div>
+            <div class="light-orb">💡</div>
             <div class="light-info">
               <div class="light-name">${light.name.replace(/-/g,' ')}</div>
               <div class="light-sub" id="lsub-${light.name}">${sub||'—'}</div>
             </div>
             <button class="toggle" onclick="api('/lights/${light.name}/toggle','PUT').then(refresh)"></button>
           </div>
-          <div class="br-row" id="lbr-${light.name}" style="display:${isOn?'block':'none'}">
+          <div class="light-slider-row" id="lbr-${light.name}" style="display:${isOn?'block':'none'}">
             <input type="range" min="1" max="254" value="${light.brightness??127}"
               id="lrange-${light.name}"
               oninput="setBri('${light.name}',this.value)"
@@ -725,14 +936,14 @@ function renderLights(lights) {
               ontouchstart="_brTouched['${light.name}']=Date.now()">
           </div>
         </div>`;
-      el.appendChild(w);
+      el.appendChild(wrap);
     } else {
       card.className = `light-card${isOn?' on':''}`;
       document.getElementById(`lsub-${light.name}`).textContent = sub||'—';
-      document.getElementById(`lbr-${light.name}`).style.display = isOn?'block':'none';
+      document.getElementById(`lbr-${light.name}`).style.display = isOn ? 'block' : 'none';
       const r = document.getElementById(`lrange-${light.name}`);
-      const recentlyTouched = (_brTouched[light.name] || 0) + BR_LOCK_MS > now;
-      if (r && !recentlyTouched && light.brightness != null) r.value = light.brightness;
+      if (r && ((_brTouched[light.name]||0) + 3000 < now) && light.brightness != null)
+        r.value = light.brightness;
     }
   }
 }
@@ -743,25 +954,27 @@ function setBri(name, val) {
   _brTimers[name] = setTimeout(() => api(`/lights/${name}/brightness/${val}`, 'PUT'), 120);
 }
 
-// ── Refresh ──────────────────────────────────────────────
+// ── Refresh ───────────────────────────────────────────────
 async function refresh() {
   try {
     const lights = await api('/lights');
-    document.getElementById('dot').className='ok';
+    document.getElementById('dot').className = 'ok';
     renderLights(lights);
     updateMasterSlider(lights);
-  } catch { document.getElementById('dot').className='err'; }
+  } catch { document.getElementById('dot').className = 'err'; }
 }
 
+// ── Init ──────────────────────────────────────────────────
 async function init() {
+  setGreeting();
   try {
-    await Promise.all([loadGroups(),loadProfiles(),loadScenes(),loadColors(),loadEffects()]);
+    await Promise.all([loadGroups(), loadProfiles(), loadScenes(), loadColors(), loadEffects()]);
     await refresh();
-  } catch { document.getElementById('dot').className='err'; }
-  setInterval(refresh,4000);
+  } catch { document.getElementById('dot').className = 'err'; }
+  setInterval(refresh, 4000);
 }
 
-if('serviceWorker' in navigator) navigator.serviceWorker.register('/static/sw.js');
+if ('serviceWorker' in navigator) navigator.serviceWorker.register('/static/sw.js');
 init();
 </script>
 </body>
