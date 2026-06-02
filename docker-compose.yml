@@ -1,0 +1,41 @@
+services:
+  mosquitto:
+    image: eclipse-mosquitto:2
+    container_name: mosquitto
+    restart: unless-stopped
+    ports:
+      - "1883:1883"
+    volumes:
+      - ./mosquitto/config:/mosquitto/config:ro
+      - ./mosquitto/data:/mosquitto/data
+      - ./mosquitto/log:/mosquitto/log
+
+  zigbee2mqtt:
+    image: koenkk/zigbee2mqtt:latest
+    container_name: zigbee2mqtt
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+    ports:
+      - "8081:8080"
+    volumes:
+      - ./zigbee2mqtt-data:/app/data
+    devices:
+      - ${ZIGBEE_DONGLE:-/dev/ttyUSB0}:/dev/ttyUSB0
+    environment:
+      - TZ=${TZ:-Europe/London}
+
+  tradfri-api:
+    build: ./tradfri-api
+    image: tradfri-api:latest
+    container_name: tradfri-api
+    restart: unless-stopped
+    depends_on:
+      - mosquitto
+      - zigbee2mqtt
+    ports:
+      - "8000:8000"
+    environment:
+      - MQTT_HOST=mosquitto
+      - MQTT_PORT=1883
+      - ZIGBEE2MQTT_BASE_TOPIC=zigbee2mqtt
