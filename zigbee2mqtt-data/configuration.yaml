@@ -5,6 +5,7 @@ mqtt:
   server: mqtt://mosquitto:1883
 serial:
   port: /dev/ttyUSB0
+  adapter: ezsp
 frontend:
   enabled: true
   port: 8080
@@ -14,3 +15,17 @@ advanced:
   log_output:
     - console
 version: 5
+devices:
+  '0x70c59cfffe2bfe79':
+    friendly_name: desk-lamp
+  '0x0c2a6ffffe968cf7':
+    friendly_name: dress-table-lamp
+  '0x8c8b48fffeba357b':
+    friendly_name: nighttable-lamp
+  '0x8c8b48fffeb9f4c5':
+    friendly_name: corner-lamp
+  '0x94a081fffe838be2':
+    friendly_name: Remote
+groups:
+  '1':
+    friendly_name: bedroom-lights
