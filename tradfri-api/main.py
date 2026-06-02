@@ -608,20 +608,20 @@ async def toggle_light(name: str):
     await _publish(name, {"state": "TOGGLE"})
     return {"ok": True}
 
-@app.put("/lights/{name}/brightness/{value}")
-async def set_brightness(name: str, value: int):
-    if not 0 <= value <= 254:
-        raise HTTPException(400, "brightness must be 0–254")
-    await _stop_all_effects()
-    await _publish(name, {"brightness": value})
-    return {"ok": True}
-
 @app.put("/lights/all/brightness/{value}")
 async def set_brightness_all(value: int):
     if not 0 <= value <= 254:
         raise HTTPException(400, "brightness must be 0–254")
     await _stop_all_effects()
     await _publish_many(_lamp_names(), {"brightness": value})
+    return {"ok": True}
+
+@app.put("/lights/{name}/brightness/{value}")
+async def set_brightness(name: str, value: int):
+    if not 0 <= value <= 254:
+        raise HTTPException(400, "brightness must be 0–254")
+    await _stop_all_effects()
+    await _publish(name, {"brightness": value})
     return {"ok": True}
 
 # ── Groups ────────────────────────────────────────────────────────────────────
