@@ -242,18 +242,22 @@ BUILTIN_EFFECTS: dict[str, dict] = {
     },
     # ── Wake-up / wind-down ────────────────────────────────────────────────────
     "wake up": {
-        # 5-minute gradual sunrise simulation (run once)
+        # ~8-minute gradual sunrise simulation (run once)
+        # Starts with a visible deep red so you immediately see something,
+        # then slowly transitions through orange → warm white → bright daylight
         "steps": [
-            {"type": "on",         "duration": 2.0},
-            {"type": "color",      "hue": 5,    "saturation": 90, "duration": 5.0},
-            {"type": "brightness", "brightness": 5,                "duration": 5.0},
+            {"type": "on",         "duration": 1.0},
+            {"type": "color",      "hue": 5,    "saturation": 95, "duration": 3.0},
+            {"type": "brightness", "brightness": 20,               "duration": 10.0},
+            {"type": "color",      "hue": 10,   "saturation": 90, "duration": 60.0},
+            {"type": "brightness", "brightness": 60,               "duration": 60.0},
             {"type": "color",      "hue": 20,   "saturation": 80, "duration": 60.0},
-            {"type": "brightness", "brightness": 40,               "duration": 60.0},
-            {"type": "color",      "hue": 35,   "saturation": 70, "duration": 60.0},
-            {"type": "brightness", "brightness": 100,              "duration": 60.0},
-            {"type": "color",      "hue": 45,   "saturation": 55, "duration": 60.0},
-            {"type": "brightness", "brightness": 180,              "duration": 60.0},
-            {"type": "color",      "hue": 50,   "saturation": 30, "duration": 60.0},
+            {"type": "brightness", "brightness": 110,              "duration": 60.0},
+            {"type": "color",      "hue": 35,   "saturation": 65, "duration": 60.0},
+            {"type": "brightness", "brightness": 170,              "duration": 60.0},
+            {"type": "color",      "hue": 45,   "saturation": 40, "duration": 60.0},
+            {"type": "brightness", "brightness": 220,              "duration": 60.0},
+            {"type": "color",      "hue": 50,   "saturation": 20, "duration": 60.0},
             {"type": "brightness", "brightness": 254,              "duration": 60.0},
         ],
         "loop": False,
