@@ -296,6 +296,7 @@ _profiles: dict[str, dict] = {}
 _custom_effects: dict[str, dict] = {}
 _group_scene_index: dict[str, int] = {}
 _effect_tasks: dict[str, asyncio.Task] = {}   # key → running sequence task
+_master_brightness: int = 254                 # ceiling applied to all effect brightness steps
 
 # ── Persistence ───────────────────────────────────────────────────────────────
 
@@ -380,7 +381,8 @@ async def _run_sequence(names: list[str], steps: list[dict], loop: bool = True) 
                 duration = float(step.get("duration", 1.0))
 
                 if stype == "brightness":
-                    cmd = {"brightness": int(step["brightness"]), "transition": duration}
+                    scaled = max(1, round(int(step["brightness"]) * _master_brightness / 254))
+                    cmd = {"brightness": scaled, "transition": duration}
                 elif stype == "color":
                     cmd = {"color": {"hue": int(step["hue"]),
                                      "saturation": int(step.get("saturation", 90))},
@@ -603,8 +605,10 @@ async def toggle_light(name: str):
 
 @app.put("/lights/all/brightness/{value}")
 async def set_brightness_all(value: int):
+    global _master_brightness
     if not 0 <= value <= 254:
         raise HTTPException(400, "brightness must be 0–254")
+    _master_brightness = value
     await _stop_all_effects()
     await _publish_many(_lamp_names(), {"brightness": value})
     return {"ok": True}
