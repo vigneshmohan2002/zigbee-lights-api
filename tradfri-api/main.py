@@ -290,13 +290,15 @@ DEFAULT_PROFILES: dict[str, dict] = {
 # ── In-memory state ───────────────────────────────────────────────────────────
 
 _devices: dict[str, dict] = {}
-_listener_task: Optional[asyncio.Task] = None
+_listener_task:  Optional[asyncio.Task]     = None
+_publisher_task: Optional[asyncio.Task]     = None
 _scenes: dict[str, dict] = {}
 _profiles: dict[str, dict] = {}
 _custom_effects: dict[str, dict] = {}
 _group_scene_index: dict[str, int] = {}
 _effect_tasks: dict[str, asyncio.Task] = {}   # key → running sequence task
 _master_brightness: int = 254                 # ceiling applied to all effect brightness steps
+_mqtt_client: Optional[aiomqtt.Client] = None  # persistent publisher connection
 
 # ── Persistence ───────────────────────────────────────────────────────────────
 
@@ -323,25 +325,33 @@ def _lamp_names() -> list[str]:
         )
     ]
 
+async def _pub(topic: str, payload: dict) -> None:
+    """Send one MQTT message on the persistent publisher connection."""
+    if _mqtt_client is None:
+        return
+    await _mqtt_client.publish(topic, json.dumps(payload))
+
 async def _publish(name: str, payload: dict) -> None:
-    async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-        await c.publish(f"{BASE_TOPIC}/{name}/set", json.dumps(payload))
+    await _pub(f"{BASE_TOPIC}/{name}/set", payload)
 
 async def _publish_many(names: list[str], payload: dict) -> None:
-    """Publish to multiple lamps. Handles effect payloads by sending base first."""
-    async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-        effect = payload.get("effect")
-        if effect:
-            base = {k: v for k, v in payload.items() if k != "effect"}
-            if base:
-                for n in names:
-                    await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(base))
-                await asyncio.sleep(0.3)
+    """Publish to multiple lamps on the shared connection.
+    Handles effect payloads: sends base payload first, then the effect command."""
+    if _mqtt_client is None:
+        return
+    c = _mqtt_client
+    effect = payload.get("effect")
+    if effect:
+        base = {k: v for k, v in payload.items() if k != "effect"}
+        if base:
             for n in names:
-                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps({"effect": effect}))
-        else:
-            for n in names:
-                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(payload))
+                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(base))
+            await asyncio.sleep(0.3)
+        for n in names:
+            await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps({"effect": effect}))
+    else:
+        for n in names:
+            await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(payload))
 
 def _device_response(name: str, data: dict) -> dict:
     info = data.get("info", {})
@@ -397,9 +407,8 @@ async def _run_sequence(names: list[str], steps: list[dict], loop: bool = True) 
                 else:
                     continue
 
-                async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-                    for n in names:
-                        await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(cmd))
+                for n in names:
+                    await _pub(f"{BASE_TOPIC}/{n}/set", cmd)
                 await asyncio.sleep(duration + 0.05)
 
             if not loop:
@@ -432,11 +441,10 @@ async def _stop_all_effects() -> None:
     lamps = _lamp_names()
     if not lamps:
         return
-    async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-        for n in lamps:
-            await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps({"effect": "stop_colorloop"}))
-        for n in lamps:
-            await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps({"effect": "stop_effect"}))
+    for n in lamps:
+        await _pub(f"{BASE_TOPIC}/{n}/set", {"effect": "stop_colorloop"})
+    for n in lamps:
+        await _pub(f"{BASE_TOPIC}/{n}/set", {"effect": "stop_effect"})
 
 # ── Remote control ────────────────────────────────────────────────────────────
 
@@ -458,23 +466,20 @@ async def _handle_remote_action(remote_name: str, action: str) -> None:
         at_min = all(_devices.get(n, {}).get("brightness", 255) <= BRIGHTNESS_OFF_THRESHOLD
                      for n in on_members)
         cmd = {"state": "OFF"} if (at_min and on_members) else {"brightness_move": 0}
-        async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-            for n in members:
-                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(cmd))
+        for n in members:
+            await _pub(f"{BASE_TOPIC}/{n}/set", cmd)
         return
 
     if action in ("arrow_right_click", "arrow_left_click"):
         direction = 1 if action == "arrow_right_click" else -1
         payload   = _advance_scene(group_name, direction)
-        async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-            for n in members:
-                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(payload))
+        for n in members:
+            await _pub(f"{BASE_TOPIC}/{n}/set", payload)
         return
 
     if cmd := REMOTE_ACTION_MAP.get(action):
-        async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-            for n in members:
-                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(cmd))
+        for n in members:
+            await _pub(f"{BASE_TOPIC}/{n}/set", cmd)
 
 # ── MQTT listener ─────────────────────────────────────────────────────────────
 
@@ -504,11 +509,29 @@ async def _mqtt_listener() -> None:
                 if name in _devices and isinstance(payload, dict):
                     _devices[name].update(payload)
 
+# ── Persistent publisher ──────────────────────────────────────────────────────
+
+async def _mqtt_publisher() -> None:
+    """Maintain a long-lived MQTT connection used by all publish calls."""
+    global _mqtt_client
+    while True:
+        try:
+            async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
+                _mqtt_client = c
+                # Hold the connection open until cancelled
+                await asyncio.get_event_loop().create_future()
+        except asyncio.CancelledError:
+            _mqtt_client = None
+            return
+        except Exception:
+            _mqtt_client = None
+            await asyncio.sleep(2)   # brief pause before reconnect
+
 # ── App lifecycle ─────────────────────────────────────────────────────────────
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    global _listener_task, _scenes, _profiles, _custom_effects
+    global _listener_task, _publisher_task, _scenes, _profiles, _custom_effects
     _scenes   = _load_json(SCENES_FILE,   DEFAULT_SCENES)
     _profiles = _load_json(PROFILES_FILE, DEFAULT_PROFILES)
     # Seed built-in effects only if key is absent (won't overwrite user edits)
@@ -518,14 +541,17 @@ async def lifespan(app: FastAPI):
     _custom_effects = raw
     _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
 
-    _listener_task = asyncio.create_task(_mqtt_listener())
-    await asyncio.sleep(1)
+    _publisher_task = asyncio.create_task(_mqtt_publisher())
+    _listener_task  = asyncio.create_task(_mqtt_listener())
+    await asyncio.sleep(1)   # give both connections time to establish
     yield
+    _publisher_task.cancel()
     _listener_task.cancel()
-    try:
-        await _listener_task
-    except asyncio.CancelledError:
-        pass
+    for t in (_publisher_task, _listener_task):
+        try:
+            await t
+        except asyncio.CancelledError:
+            pass
 
 # ── FastAPI app ───────────────────────────────────────────────────────────────
 
@@ -741,9 +767,8 @@ async def apply_scene(name: str):
     await _stop_all_effects()
     scene = _scenes[name]
     if "lights" in scene:
-        async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-            for lamp, payload in scene["lights"].items():
-                await c.publish(f"{BASE_TOPIC}/{lamp}/set", json.dumps(payload))
+        for lamp, payload in scene["lights"].items():
+            await _pub(f"{BASE_TOPIC}/{lamp}/set", payload)
     else:
         await _publish_many(_lamp_names(), scene)
     return {"ok": True}
