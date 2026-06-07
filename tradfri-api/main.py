@@ -157,10 +157,10 @@ BUILTIN_EFFECTS: dict[str, dict] = {
     },
     "red blue strobe": {
         "steps": [
-            {"type": "color",      "hue": 0,   "saturation": 95, "duration": 0.05},
-            {"type": "brightness", "brightness": 220,             "duration": 0.05},
-            {"type": "color",      "hue": 240, "saturation": 95, "duration": 0.05},
-            {"type": "brightness", "brightness": 220,             "duration": 0.05},
+            {"type": "color",      "hue": 0,   "saturation": 95, "duration": 0.4},
+            {"type": "brightness", "brightness": 220,             "duration": 0.4},
+            {"type": "color",      "hue": 240, "saturation": 95, "duration": 0.4},
+            {"type": "brightness", "brightness": 220,             "duration": 0.4},
         ],
         "loop": True,
     },
