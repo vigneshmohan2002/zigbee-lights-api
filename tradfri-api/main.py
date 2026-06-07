@@ -786,6 +786,11 @@ async def delete_custom_effect(name: str):
     _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
     return {"ok": True}
 
+@app.put("/effects/stop")
+async def stop_effects():
+    await _stop_all_effects()
+    return {"ok": True}
+
 @app.put("/effects/{effect}/all")
 async def apply_effect_all(effect: str):
     await _stop_all_effects()

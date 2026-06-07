@@ -481,7 +481,10 @@
 <div class="page" id="page-effects">
   <div class="page-header">
     <div class="page-title">Effects</div>
-    <button class="add-btn" onclick="toggleForm('effect-form')">+ Add</button>
+    <div style="display:flex;gap:8px;align-items:center">
+      <button onclick="stopEffects()" style="background:#ff375f22;border:1px solid #ff375f55;color:#ff375f;border-radius:10px;padding:5px 13px;font-size:13px;font-weight:600;cursor:pointer">⏹ Stop</button>
+      <button class="add-btn" onclick="toggleForm('effect-form')">+ Add</button>
+    </div>
   </div>
 
   <div class="sec">
@@ -834,6 +837,11 @@ async function saveCustomEffect() {
   clearEffectForm();
   toggleForm('effect-form');
   loadEffects();
+}
+
+function stopEffects() {
+  api('/effects/stop', 'PUT');
+  document.querySelectorAll('.effect-card').forEach(c => c.classList.remove('sel'));
 }
 
 async function loadEffects() {
