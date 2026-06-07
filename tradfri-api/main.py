@@ -22,6 +22,7 @@ import os
 from contextlib import asynccontextmanager
 from typing import Any, Literal, Optional
 
+import aiofiles
 import aiomqtt
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -302,16 +303,25 @@ _mqtt_client: Optional[aiomqtt.Client] = None  # persistent publisher connection
 
 # ── Persistence ───────────────────────────────────────────────────────────────
 
-def _load_json(path: str, default: dict) -> dict:
-    if os.path.exists(path):
-        with open(path) as f:
-            return json.load(f)
-    _save_json(path, dict(default))
-    return dict(default)
-
-def _save_json(path: str, data: dict) -> None:
+def _save_json_sync(path: str, data: dict) -> None:
+    """Synchronous write used only at startup before the event loop yields."""
     with open(path, "w") as f:
         json.dump(data, f, indent=2)
+
+def _load_json(path: str, default: dict) -> dict:
+    if os.path.exists(path):
+        try:
+            with open(path) as f:
+                return json.load(f)
+        except Exception:
+            pass  # malformed JSON → fall through to default
+    _save_json_sync(path, dict(default))
+    return dict(default)
+
+async def _save_json(path: str, data: dict) -> None:
+    """Async write used at runtime — does not block the event loop."""
+    async with aiofiles.open(path, "w") as f:
+        await f.write(json.dumps(data, indent=2))
 
 # ── MQTT helpers ──────────────────────────────────────────────────────────────
 
@@ -337,21 +347,18 @@ async def _publish(name: str, payload: dict) -> None:
 async def _publish_many(names: list[str], payload: dict) -> None:
     """Publish to multiple lamps on the shared connection.
     Handles effect payloads: sends base payload first, then the effect command."""
-    if _mqtt_client is None:
-        return
-    c = _mqtt_client
     effect = payload.get("effect")
     if effect:
         base = {k: v for k, v in payload.items() if k != "effect"}
         if base:
             for n in names:
-                await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(base))
+                await _pub(f"{BASE_TOPIC}/{n}/set", base)
             await asyncio.sleep(0.3)
         for n in names:
-            await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps({"effect": effect}))
+            await _pub(f"{BASE_TOPIC}/{n}/set", {"effect": effect})
     else:
         for n in names:
-            await c.publish(f"{BASE_TOPIC}/{n}/set", json.dumps(payload))
+            await _pub(f"{BASE_TOPIC}/{n}/set", payload)
 
 def _device_response(name: str, data: dict) -> dict:
     info = data.get("info", {})
@@ -419,7 +426,9 @@ async def _run_sequence(names: list[str], steps: list[dict], loop: bool = True) 
 
 def _start_effect(names: list[str], effect_def: dict) -> None:
     """Start a sequence effect and register its task."""
-    key  = _effect_key(names)
+    key = _effect_key(names)
+    if key in _effect_tasks:
+        _effect_tasks[key].cancel()
     task = asyncio.create_task(
         _run_sequence(names, effect_def["steps"], loop=effect_def.get("loop", True))
     )
@@ -484,30 +493,37 @@ async def _handle_remote_action(remote_name: str, action: str) -> None:
 # ── MQTT listener ─────────────────────────────────────────────────────────────
 
 async def _mqtt_listener() -> None:
-    async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
-        await c.subscribe(f"{BASE_TOPIC}/bridge/devices")
-        await c.subscribe(f"{BASE_TOPIC}/+")
-        async for msg in c.messages:
-            topic = str(msg.topic)
-            try:
-                payload = json.loads(msg.payload)
-            except Exception:
-                continue
+    """Subscribe to device state and remote actions. Reconnects automatically."""
+    while True:
+        try:
+            async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
+                await c.subscribe(f"{BASE_TOPIC}/bridge/devices")
+                await c.subscribe(f"{BASE_TOPIC}/+")
+                async for msg in c.messages:
+                    topic = str(msg.topic)
+                    try:
+                        payload = json.loads(msg.payload)
+                    except Exception:
+                        continue
 
-            if topic == f"{BASE_TOPIC}/bridge/devices":
-                for dev in payload:
-                    name = dev.get("friendly_name")
-                    if name and dev.get("type") in ("EndDevice", "Router"):
-                        _devices.setdefault(name, {})["info"] = dev
-                        await c.publish(f"{BASE_TOPIC}/{name}/get",
-                                        json.dumps({"state": "", "brightness": "",
-                                                    "color_temp": "", "color": ""}))
-            else:
-                name = topic.removeprefix(f"{BASE_TOPIC}/")
-                if isinstance(payload, dict) and payload.get("action"):
-                    asyncio.create_task(_handle_remote_action(name, payload["action"]))
-                if name in _devices and isinstance(payload, dict):
-                    _devices[name].update(payload)
+                    if topic == f"{BASE_TOPIC}/bridge/devices":
+                        for dev in payload:
+                            name = dev.get("friendly_name")
+                            if name and dev.get("type") in ("EndDevice", "Router"):
+                                _devices.setdefault(name, {})["info"] = dev
+                                await _pub(f"{BASE_TOPIC}/{name}/get",
+                                           {"state": "", "brightness": "",
+                                            "color_temp": "", "color": ""})
+                    else:
+                        name = topic.removeprefix(f"{BASE_TOPIC}/")
+                        if isinstance(payload, dict) and payload.get("action"):
+                            asyncio.create_task(_handle_remote_action(name, payload["action"]))
+                        if name in _devices and isinstance(payload, dict):
+                            _devices[name].update(payload)
+        except asyncio.CancelledError:
+            return
+        except Exception:
+            await asyncio.sleep(2)  # reconnect after broker hiccup
 
 # ── Persistent publisher ──────────────────────────────────────────────────────
 
@@ -519,7 +535,7 @@ async def _mqtt_publisher() -> None:
             async with aiomqtt.Client(MQTT_HOST, MQTT_PORT) as c:
                 _mqtt_client = c
                 # Hold the connection open until cancelled
-                await asyncio.get_event_loop().create_future()
+                await asyncio.get_running_loop().create_future()
         except asyncio.CancelledError:
             _mqtt_client = None
             return
@@ -539,7 +555,7 @@ async def lifespan(app: FastAPI):
     for name, defn in BUILTIN_EFFECTS.items():
         raw.setdefault(name, defn)
     _custom_effects = raw
-    _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
+    await _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
 
     _publisher_task = asyncio.create_task(_mqtt_publisher())
     _listener_task  = asyncio.create_task(_mqtt_listener())
@@ -681,7 +697,7 @@ async def create_profile(body: ProfileBody):
         raise HTTPException(400, "Name cannot be empty")
     _profiles[body.name] = {"state": "ON", "brightness": body.brightness,
                              "color_temp": body.color_temp, "transition": body.transition}
-    _save_json(PROFILES_FILE, _profiles)
+    await _save_json(PROFILES_FILE, _profiles)
     return {"ok": True, "name": body.name}
 
 @app.delete("/profiles/{name}")
@@ -689,7 +705,7 @@ async def delete_profile(name: str):
     if name not in _profiles:
         raise HTTPException(404, "Profile not found")
     del _profiles[name]
-    _save_json(PROFILES_FILE, _profiles)
+    await _save_json(PROFILES_FILE, _profiles)
     return {"ok": True}
 
 @app.put("/profiles/{name}/apply")
@@ -727,7 +743,7 @@ async def create_scene(body: SceneBody):
     if body.effect     is not None: payload["effect"]     = body.effect
     if body.transition is not None: payload["transition"] = body.transition
     _scenes[body.name] = payload
-    _save_json(SCENES_FILE, _scenes)
+    await _save_json(SCENES_FILE, _scenes)
     return {"ok": True, "name": body.name}
 
 @app.post("/scenes/capture")
@@ -749,7 +765,7 @@ async def capture_scene(body: dict[str, str]):
                               if k in ("hue", "saturation")}
         lights[lamp] = entry
     _scenes[name] = {"lights": lights}
-    _save_json(SCENES_FILE, _scenes)
+    await _save_json(SCENES_FILE, _scenes)
     return {"ok": True, "name": name}
 
 @app.delete("/scenes/{name}")
@@ -757,7 +773,7 @@ async def delete_scene(name: str):
     if name not in _scenes:
         raise HTTPException(404, "Scene not found")
     del _scenes[name]
-    _save_json(SCENES_FILE, _scenes)
+    await _save_json(SCENES_FILE, _scenes)
     return {"ok": True}
 
 @app.put("/scenes/{name}/apply")
@@ -804,7 +820,7 @@ async def create_custom_effect(body: CustomEffectBody):
         "steps": [s.model_dump(exclude_none=True) for s in body.steps],
         "loop":  body.loop,
     }
-    _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
+    await _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
     return {"ok": True, "name": body.name}
 
 @app.delete("/effects/custom/{name}")
@@ -812,7 +828,7 @@ async def delete_custom_effect(name: str):
     if name not in _custom_effects:
         raise HTTPException(404, "Custom effect not found")
     del _custom_effects[name]
-    _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
+    await _save_json(CUSTOM_EFFECTS_FILE, _custom_effects)
     return {"ok": True}
 
 @app.put("/effects/stop")
