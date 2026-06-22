@@ -5,425 +5,458 @@
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>Home</title>
   <link rel="manifest" href="/static/manifest.json">
-  <meta name="theme-color" content="#080c0c">
+  <meta name="theme-color" content="#0d1117">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Lights">
+  <link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --bg:       #080c0c;
-      --card:     #0f1818;
-      --card2:    #162222;
-      --card3:    #1d2e2e;
-      --border:   rgba(77,182,172,0.10);
-      --border2:  rgba(77,182,172,0.20);
-      --text:     #e0f2f1;
-      --dim:      #6b9e99;
-      --dim2:     #1e3333;
-      --gold:     #4db6ac;
-      --gold2:    #38a097;
-      --gold-bg:  rgba(77,182,172,0.12);
-      --gold-glow:rgba(77,182,172,0.25);
-      --purple:   #80cbc4;
-      --purple-bg:rgba(128,203,196,0.13);
-      --green:    #26a69a;
-      --red:      #ef5350;
-      --blue:     #4dd0e1;
-      --r:        20px;
-      --r-s:      14px;
+      --bg:     #0d1117;
+      --card:   #161d2a;
+      --card2:  #1e2840;
+      --card3:  #253152;
+      --border: rgba(99,139,200,0.10);
+      --border2:rgba(99,139,200,0.20);
+      --text:   #e8edf5;
+      --text2:  #b8c4d8;
+      --dim:    #6b7fa0;
+      --dim2:   #1a2236;
+      --accent: #4db6ac;
+      --accent-bg: rgba(77,182,172,0.12);
+      --on:     #ffb74d;
+      --on-bg:  rgba(255,183,77,0.12);
+      --green:  #4caf50;
+      --red:    #ef5350;
+      --r:      16px;
+      --r-s:    12px;
       --safe-t: env(safe-area-inset-top,    0px);
       --safe-b: env(safe-area-inset-bottom, 0px);
       --safe-l: env(safe-area-inset-left,   0px);
       --safe-r: env(safe-area-inset-right,  0px);
     }
-    html { background: var(--bg); }
+
+    html, body { background: var(--bg); }
     body {
       min-height: 100dvh;
-      background: radial-gradient(ellipse at 50% 0%, #0d2020 0%, var(--bg) 60%);
       color: var(--text);
-      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', sans-serif;
       -webkit-font-smoothing: antialiased;
       -webkit-tap-highlight-color: transparent;
       overflow-x: hidden;
-      padding-bottom: calc(72px + var(--safe-b));
+      padding-bottom: calc(64px + var(--safe-b));
     }
 
-    /* ── Tab pages ── */
-    .page { display: none; padding-top: calc(var(--safe-t) + 8px); }
+    /* ── Pages ── */
+    .page { display: none; padding-top: calc(var(--safe-t) + 4px); }
     .page.active { display: block; }
 
     /* ── Bottom nav ── */
     nav {
       position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-      background: rgba(8,12,12,0.90);
-      backdrop-filter: blur(20px) saturate(180%);
-      -webkit-backdrop-filter: blur(20px) saturate(180%);
+      background: rgba(13,17,23,0.94);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
       border-top: 1px solid var(--border);
       display: flex;
       padding-bottom: var(--safe-b);
     }
     .nav-tab {
       flex: 1; display: flex; flex-direction: column; align-items: center;
-      gap: 3px; padding: 10px 0 8px; border: none; background: none;
-      cursor: pointer; color: var(--dim); transition: color .2s;
+      gap: 4px; padding: 9px 0 7px; border: none; background: none;
+      cursor: pointer; color: var(--dim); transition: color .18s;
     }
-    .nav-tab.active { color: var(--gold); }
-    .nav-icon { font-size: 22px; line-height: 1; }
-    .nav-label { font-size: 10px; font-weight: 600; letter-spacing: .02em; }
+    .nav-tab.active { color: var(--accent); }
+    .nav-icon {
+      width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    }
+    .nav-icon svg { width: 22px; height: 22px; fill: currentColor; }
+    .nav-label { font-size: 10px; font-weight: 600; letter-spacing: .01em; }
 
-    /* ── Header ── */
+    /* ── Page header ── */
     .page-header {
-      display: flex; align-items: flex-end; justify-content: space-between;
-      padding: 12px 20px 20px;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 16px 20px 12px;
     }
-    .page-title { font-size: 32px; font-weight: 700; letter-spacing: -0.8px; }
-    .page-sub   { font-size: 14px; color: var(--dim); margin-top: 2px; }
-    .header-right { display: flex; align-items: center; gap: 10px; }
-    #dot { width: 9px; height: 9px; border-radius: 50%; background: var(--dim2); transition: background .4s; flex-shrink:0; }
-    #dot.ok  { background: var(--green); box-shadow: 0 0 8px var(--green); }
+    .page-title { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+    .page-sub   { font-size: 13px; color: var(--dim); margin-top: 1px; }
+    #dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--dim2); transition: background .4s;
+    }
+    #dot.ok  { background: var(--green); }
     #dot.err { background: var(--red); }
 
-    /* ── Section ── */
-    .sec { padding: 0 16px 28px; }
+    /* ── Sections ── */
+    .sec { padding: 0 16px 24px; }
+    .sec-title {
+      font-size: 13px; font-weight: 600; color: var(--dim);
+      text-transform: uppercase; letter-spacing: .07em;
+      margin-bottom: 12px;
+    }
     .sec-head {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-    .sec-label {
-      font-size: 11px; font-weight: 700; letter-spacing: .09em;
-      text-transform: uppercase; color: var(--dim);
+
+    /* ── Buttons ── */
+    .btn-ghost {
+      background: none; border: 1px solid var(--border2); color: var(--text2);
+      border-radius: 8px; padding: 5px 12px; font-size: 13px; font-weight: 500;
+      cursor: pointer; transition: background .15s;
     }
-    .add-btn {
-      background: var(--card2); border: 1px solid var(--border2);
-      color: var(--gold); border-radius: 10px; padding: 5px 13px;
+    .btn-ghost:active { background: var(--card2); }
+    .btn-accent {
+      background: var(--accent); border: none; color: #000;
+      border-radius: 8px; padding: 5px 12px; font-size: 13px; font-weight: 600;
+      cursor: pointer; transition: opacity .15s;
+    }
+    .btn-accent:active { opacity: .75; }
+    .btn-danger {
+      background: rgba(239,83,80,0.15); border: 1px solid rgba(239,83,80,0.3);
+      color: var(--red); border-radius: 8px; padding: 5px 12px;
       font-size: 13px; font-weight: 600; cursor: pointer;
-      transition: background .15s, transform .1s;
     }
-    .add-btn:active { background: var(--card3); transform: scale(.95); }
 
-    /* ── Master brightness card ── */
+    /* ── Master brightness ── */
     .master-card {
-      margin: 0 16px 28px;
-      background: linear-gradient(160deg, #181928 0%, var(--card) 70%);
-      border: 1px solid var(--border2);
+      margin: 4px 16px 24px;
+      background: var(--card);
+      border: 1px solid var(--border);
       border-radius: var(--r);
-      padding: 18px 20px;
-      box-shadow: 0 1px 0 rgba(77,182,172,0.18) inset;
+      padding: 16px 18px;
     }
-    .master-top {
+    .master-row {
       display: flex; align-items: center; justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 12px;
     }
-    .master-title { font-size: 15px; font-weight: 600; }
-    .master-pct   { font-size: 28px; font-weight: 700; letter-spacing: -1px; color: var(--gold); }
-    .master-slider-wrap { display: flex; align-items: center; gap: 10px; }
-    .master-icon  { font-size: 16px; color: var(--dim); }
+    .master-label { font-size: 14px; font-weight: 600; }
+    .master-val   { font-size: 14px; font-weight: 600; color: var(--accent); }
 
-    /* ── Range inputs ── */
     input[type=range] {
-      -webkit-appearance: none; width: 100%; height: 5px; border-radius: 3px;
+      -webkit-appearance: none; width: 100%; height: 4px; border-radius: 2px;
       background: var(--card3); outline: none; cursor: pointer;
     }
     input[type=range]::-webkit-slider-thumb {
-      -webkit-appearance: none; width: 24px; height: 24px; border-radius: 50%;
-      background: var(--gold); cursor: pointer;
-      box-shadow: 0 2px 8px rgba(0,0,0,.4), 0 0 0 3px rgba(245,166,35,.2);
+      -webkit-appearance: none; width: 22px; height: 22px; border-radius: 50%;
+      background: #fff; cursor: pointer;
+      box-shadow: 0 1px 6px rgba(0,0,0,.5);
     }
-    input[type=range]::-webkit-slider-runnable-track { border-radius: 3px; }
 
     /* ── Room cards ── */
-    .rooms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .rooms-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
     .room-card {
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 16px; cursor: pointer;
-      transition: border-color .25s, background .25s, transform .1s;
-      position: relative; overflow: hidden;
-    }
-    .room-card.on {
-      border-color: rgba(245,166,35,.3);
-      background: linear-gradient(145deg, rgba(77,182,172,.12) 0%, var(--card) 65%);
+      border-radius: var(--r); padding: 14px 14px 12px;
+      transition: transform .1s;
     }
     .room-card:active { transform: scale(.97); }
-    .room-icon {
-      font-size: 28px; line-height: 1; margin-bottom: 10px; display: block;
+    .room-top {
+      display: flex; align-items: center; justify-content: space-between;
+      margin-bottom: 12px;
     }
+    .room-icon-wrap {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: var(--card2);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .room-status {
+      font-size: 11px; font-weight: 600; color: var(--dim);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .room-status.on { color: var(--on); }
     .room-name {
-      font-size: 14px; font-weight: 600; text-transform: capitalize; margin-bottom: 10px;
+      font-size: 14px; font-weight: 600; text-transform: capitalize;
+      margin-bottom: 10px; color: var(--text);
     }
     .room-btns { display: flex; gap: 6px; }
     .r-btn {
-      flex: 1; border: none; border-radius: 10px; font-size: 13px;
-      font-weight: 600; cursor: pointer; padding: 9px 0;
-      transition: opacity .15s, transform .1s;
+      flex: 1; border: none; border-radius: 8px; font-size: 13px;
+      font-weight: 600; cursor: pointer; padding: 8px 0;
+      transition: opacity .15s;
     }
-    .r-btn:active { opacity: .65; transform: scale(.96); }
-    .r-btn.on  { background: var(--gold); color: #000; }
-    .r-btn.off { background: var(--card2); color: var(--dim); border: 1px solid var(--border); }
+    .r-btn:active { opacity: .7; }
+    .r-btn.on  { background: var(--on); color: #1a1000; }
+    .r-btn.off { background: var(--card3); color: var(--dim); }
 
-    /* ── Quick profiles ── */
-    .profiles-scroll {
-      display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+    /* ── Profile strip ── */
+    .hscroll {
+      display: flex; gap: 8px; overflow-x: auto;
       scrollbar-width: none; -webkit-overflow-scrolling: touch;
+      padding-bottom: 2px;
     }
-    .profiles-scroll::-webkit-scrollbar { display: none; }
-    .profile-card {
-      flex-shrink: 0; display: flex; flex-direction: column; align-items: center;
-      gap: 6px; background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r-s); padding: 14px 16px; cursor: pointer;
-      min-width: 76px;
-      transition: background .15s, border-color .15s, transform .1s;
-    }
-    .profile-card:active { transform: scale(.94); }
-    .profile-card.sel  { background: var(--gold-bg); border-color: var(--gold); }
-    .profile-icon { font-size: 22px; line-height: 1; }
-    .profile-name { font-size: 12px; font-weight: 600; color: var(--dim); white-space: nowrap; text-transform: capitalize; }
-    .profile-card.sel .profile-name { color: var(--gold); }
+    .hscroll::-webkit-scrollbar { display: none; }
 
-    /* ── Scene grid ── */
-    .scenes-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-    .scene-card {
+    .profile-chip {
+      flex-shrink: 0;
       background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 16px; cursor: pointer;
-      display: flex; align-items: center; gap: 12px;
-      transition: background .15s, border-color .15s, transform .1s;
+      border-radius: 999px; padding: 8px 16px; cursor: pointer;
+      font-size: 14px; font-weight: 500; color: var(--text2);
+      white-space: nowrap;
+      transition: background .15s, border-color .15s, color .15s;
+    }
+    .profile-chip:active { opacity: .7; }
+    .profile-chip.sel {
+      background: var(--accent-bg); border-color: var(--accent); color: var(--accent);
+    }
+
+    /* ── Scene pills ── */
+    .scene-chip {
+      flex-shrink: 0; cursor: pointer;
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 12px; padding: 10px 14px;
+      display: flex; align-items: center; gap: 8px;
+      transition: background .15s, transform .1s;
       position: relative;
     }
-    .scene-card:active { transform: scale(.96); }
-    .scene-icon { font-size: 26px; line-height: 1; flex-shrink: 0; }
-    .scene-info { flex: 1; min-width: 0; }
-    .scene-name { font-size: 14px; font-weight: 600; text-transform: capitalize; }
-    .scene-actions { position: absolute; top: 8px; right: 8px; display: flex; gap: 4px; }
-    .star-btn {
-      background: none; border: none; cursor: pointer; font-size: 14px;
-      color: var(--dim2); padding: 2px; line-height: 1;
+    .scene-chip:active { transform: scale(.96); }
+    .scene-chip-icon { font-size: 18px; line-height: 1; }
+    .scene-chip-name {
+      font-size: 14px; font-weight: 500; white-space: nowrap; color: var(--text);
     }
-    .star-btn.on { color: var(--gold); }
-    .scene-del {
-      background: none; border: none; cursor: pointer; font-size: 16px;
-      color: var(--dim2); padding: 2px; line-height: 1; transition: color .15s;
+    .scene-chip-star {
+      background: none; border: none; cursor: pointer;
+      font-size: 12px; color: var(--dim); padding: 2px; line-height: 1;
     }
-    .scene-del:active { color: var(--red); }
-    .scenes-divider {
-      font-size: 11px; font-weight: 700; letter-spacing: .09em;
-      text-transform: uppercase; color: var(--dim);
-      margin: 20px 0 12px;
+    .scene-chip-star.on { color: var(--on); }
+    .scene-chip-del {
+      background: none; border: none; cursor: pointer;
+      font-size: 15px; color: var(--dim); padding: 2px 0 2px 4px; line-height: 1;
     }
 
-    /* ── Colour swatches ── */
-    .colors-scroll {
-      display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px;
-      scrollbar-width: none; -webkit-overflow-scrolling: touch;
-    }
-    .colors-scroll::-webkit-scrollbar { display: none; }
-    .color-pill {
-      flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 7px;
+    /* ── Colour row ── */
+    .color-dot-wrap {
+      flex-shrink: 0; display: flex; flex-direction: column; align-items: center; gap: 6px;
       cursor: pointer; transition: transform .15s;
     }
-    .color-pill:active { transform: scale(.9); }
-    .color-circle {
-      width: 52px; height: 52px; border-radius: 50%;
-      border: 3px solid transparent; transition: border-color .15s, transform .15s;
+    .color-dot-wrap:active { transform: scale(.88); }
+    .color-dot {
+      width: 44px; height: 44px; border-radius: 50%;
+      border: 2.5px solid transparent; transition: border-color .15s;
     }
-    .color-pill.sel .color-circle { border-color: #fff; transform: scale(1.1); }
-    .color-name { font-size: 11px; font-weight: 600; color: var(--dim); text-transform: capitalize; }
+    .color-dot-wrap.sel .color-dot { border-color: #fff; }
+    .color-dot-label { font-size: 11px; color: var(--dim); text-transform: capitalize; font-weight: 500; }
 
     /* ── Effects ── */
-    .effects-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 16px; }
-    .effect-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r); padding: 16px; cursor: pointer;
-      transition: background .15s, border-color .15s, transform .1s;
-      position: relative;
+    .effects-list { display: flex; flex-direction: column; gap: 1px; margin-bottom: 20px; }
+    .effect-row {
+      background: var(--card); border-radius: 0; padding: 13px 16px;
+      display: flex; align-items: center; gap: 12px; cursor: pointer;
+      transition: background .15s;
     }
-    .effect-card:active { transform: scale(.96); }
-    .effect-card.sel { background: var(--purple-bg); border-color: var(--purple); }
-    .effect-icon { font-size: 24px; line-height: 1; margin-bottom: 8px; }
-    .effect-name { font-size: 13px; font-weight: 600; text-transform: capitalize; line-height: 1.3; }
-    .effect-type { font-size: 11px; color: var(--dim); margin-top: 3px; }
-    .effect-del {
-      position: absolute; top: 8px; right: 8px;
-      background: none; border: none; cursor: pointer; font-size: 16px;
-      color: var(--dim2); padding: 2px; transition: color .15s;
+    .effects-list .effect-row:first-child { border-radius: var(--r) var(--r) 0 0; }
+    .effects-list .effect-row:last-child  { border-radius: 0 0 var(--r) var(--r); }
+    .effects-list .effect-row:only-child  { border-radius: var(--r); }
+    .effect-row:active { background: var(--card2); }
+    .effect-row.sel { background: var(--accent-bg); }
+    .effect-row-name {
+      flex: 1; font-size: 15px; font-weight: 400; color: var(--text); text-transform: capitalize;
     }
-    .effect-del:active { color: var(--red); }
+    .effect-row-tag {
+      font-size: 11px; font-weight: 600; color: var(--dim);
+      text-transform: uppercase; letter-spacing: .05em;
+    }
+    .effect-row.sel .effect-row-tag { color: var(--accent); }
+    .effect-row-del {
+      background: none; border: none; cursor: pointer;
+      font-size: 18px; color: var(--dim); padding: 0 0 0 8px; line-height: 1;
+      transition: color .15s;
+    }
+    .effect-row-del:active { color: var(--red); }
+    .effect-sep { height: 1px; background: var(--border); margin: 0 16px; }
 
-    /* ── Individual lights ── */
+    /* ── Lights ── */
     .light-card {
-      background: var(--card); border: 1px solid var(--border);
-      border-radius: var(--r); margin-bottom: 10px; overflow: hidden;
+      background: var(--card); border-radius: var(--r);
+      margin-bottom: 8px; overflow: hidden;
+      border: 1px solid var(--border);
       transition: border-color .3s;
     }
-    .light-card.on { border-color: rgba(77,182,172,.28); }
-    .light-row {
-      display: flex; align-items: center; padding: 16px 18px; gap: 14px;
+    .light-card.on { border-color: rgba(255,183,77,.2); }
+    .light-row { display: flex; align-items: center; padding: 14px 16px; gap: 12px; }
+    .light-bulb {
+      width: 38px; height: 38px; border-radius: 10px; flex-shrink: 0;
+      background: var(--card2);
+      display: flex; align-items: center; justify-content: center;
+      transition: background .3s;
     }
-    .light-orb {
-      width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
-      background: var(--dim2); display: flex; align-items: center; justify-content: center;
-      font-size: 18px; transition: background .3s, box-shadow .3s;
-    }
-    .light-card.on .light-orb {
-      background: radial-gradient(circle at 38% 38%, #b2dfdb, #4db6ac);
-      box-shadow: 0 0 18px rgba(77,182,172,.55);
-    }
+    .light-bulb svg { width: 20px; height: 20px; fill: var(--dim); transition: fill .3s; }
+    .light-card.on .light-bulb { background: var(--on-bg); }
+    .light-card.on .light-bulb svg { fill: var(--on); }
     .light-info { flex: 1; min-width: 0; }
-    .light-name { font-size: 15px; font-weight: 600; text-transform: capitalize; }
-    .light-sub  { font-size: 12px; color: var(--dim); margin-top: 3px; }
+    .light-name { font-size: 15px; font-weight: 500; text-transform: capitalize; }
+    .light-sub  { font-size: 12px; color: var(--dim); margin-top: 2px; }
     .toggle {
-      width: 51px; height: 31px; border-radius: 999px; border: none;
+      width: 50px; height: 30px; border-radius: 999px; border: none;
       background: var(--dim2); cursor: pointer; position: relative; flex-shrink: 0;
-      transition: background .25s;
+      transition: background .22s;
     }
     .toggle::after {
-      content: ''; position: absolute; top: 2px; left: 2px;
-      width: 27px; height: 27px; border-radius: 50%; background: #fff;
-      box-shadow: 0 2px 6px rgba(0,0,0,.4);
-      transition: transform .25s cubic-bezier(.4,0,.2,1);
+      content: ''; position: absolute; top: 3px; left: 3px;
+      width: 24px; height: 24px; border-radius: 50%; background: #fff;
+      box-shadow: 0 1px 4px rgba(0,0,0,.4);
+      transition: transform .22s cubic-bezier(.4,0,.2,1);
     }
-    .light-card.on .toggle { background: var(--gold); }
+    .light-card.on .toggle { background: var(--accent); }
     .light-card.on .toggle::after { transform: translateX(20px); }
-    .light-slider-row { padding: 0 18px 14px; }
+    .light-slider-row { padding: 0 16px 14px; }
 
-    /* ── Add forms ── */
+    /* ── Forms ── */
     .add-form {
       display: none; flex-direction: column; gap: 10px;
       background: var(--card); border: 1px solid var(--border2);
       border-radius: var(--r); padding: 16px; margin-bottom: 14px;
     }
     .add-form.open { display: flex; }
+    .form-label { font-size: 13px; font-weight: 600; color: var(--dim); margin-bottom: 2px; }
     .form-row { display: flex; gap: 8px; align-items: center; }
     .field {
       flex: 1; background: var(--card2); border: 1px solid var(--border);
-      border-radius: 12px; padding: 11px 14px; color: var(--text);
-      font-size: 14px; outline: none; min-height: 44px;
-      transition: border-color .2s;
+      border-radius: 10px; padding: 10px 12px; color: var(--text);
+      font-size: 14px; outline: none; min-height: 42px;
+      transition: border-color .18s;
     }
-    .field:focus { border-color: var(--gold); }
+    .field:focus { border-color: var(--accent); }
     select.field { cursor: pointer; }
-    .field-label { font-size: 12px; color: var(--dim); min-width: 78px; flex-shrink: 0; }
-    .form-title { font-size: 16px; font-weight: 700; margin-bottom: 2px; }
+    .field-label { font-size: 13px; color: var(--dim); min-width: 80px; flex-shrink: 0; }
     .form-actions { display: flex; gap: 8px; margin-top: 4px; }
     .f-btn {
-      flex: 1; border: none; border-radius: 12px; font-size: 14px;
-      font-weight: 600; cursor: pointer; padding: 12px 0;
-      transition: opacity .15s, transform .1s;
+      flex: 1; border: none; border-radius: 10px; font-size: 14px;
+      font-weight: 600; cursor: pointer; padding: 11px 0;
+      transition: opacity .15s;
     }
-    .f-btn:active { opacity: .7; transform: scale(.97); }
-    .f-btn.primary   { background: var(--gold); color: #000; }
-    .f-btn.secondary { background: var(--card2); color: var(--dim); border: 1px solid var(--border); }
-    .f-btn.capture   { background: var(--card3); color: var(--text); font-size: 13px; }
+    .f-btn:active { opacity: .7; }
+    .f-btn.primary   { background: var(--accent); color: #000; }
+    .f-btn.secondary { background: var(--card2); color: var(--dim); }
+    .f-btn.capture   { background: var(--card3); color: var(--text2); font-size: 13px; }
 
-    /* ── Effect builder steps ── */
-    .step-row {
+    /* ── Effect step builder ── */
+    .step-item {
       display: flex; align-items: center; gap: 8px;
-      background: var(--card2); border-radius: 10px; padding: 9px 12px;
+      background: var(--card2); border-radius: 8px; padding: 8px 10px;
     }
-    .step-type-badge {
-      font-size: 11px; font-weight: 700; text-transform: uppercase;
-      letter-spacing: .06em; color: var(--gold); min-width: 64px;
+    .step-badge {
+      font-size: 11px; font-weight: 700; color: var(--accent);
+      text-transform: uppercase; letter-spacing: .05em; min-width: 60px;
     }
-    .step-desc { font-size: 13px; flex: 1; }
+    .step-info { flex: 1; font-size: 13px; color: var(--text2); }
     .step-dur  { font-size: 12px; color: var(--dim); }
     .step-del  {
-      background: none; border: 1px solid var(--border); color: var(--dim);
-      border-radius: 50%; width: 22px; height: 22px; cursor: pointer;
-      font-size: 14px; line-height: 1; flex-shrink: 0;
-      transition: color .15s, border-color .15s;
+      background: none; border: none; cursor: pointer;
+      font-size: 16px; color: var(--dim); padding: 0 2px; line-height: 1;
     }
-    .step-del:active { color: var(--red); border-color: var(--red); }
+    .step-del:active { color: var(--red); }
 
-    /* ── Empty state ── */
-    .empty { color: var(--dim); font-size: 13px; padding: 8px 0; }
-
-    /* ── Divider ── */
-    .sep { height: 1px; background: var(--border); margin: 0 16px 28px; }
+    .empty { font-size: 13px; color: var(--dim); padding: 6px 0; }
+    .sep   { height: 1px; background: var(--border); margin: 0 0 24px; }
   </style>
 </head>
 <body>
 
-<!-- ── Bottom nav ───────────────────────────────────────── -->
+<!-- ── Nav ── -->
 <nav>
   <button class="nav-tab active" onclick="switchTab('home',this)">
-    <span class="nav-icon">🏠</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg></span>
     <span class="nav-label">Home</span>
   </button>
   <button class="nav-tab" onclick="switchTab('scenes',this)">
-    <span class="nav-icon">🎬</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 0-7 7c0 2.38 1.19 4.47 3 5.74V17a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-2.26A7 7 0 0 0 19 9a7 7 0 0 0-7-7m-1 16h2v1h-2z"/></svg></span>
     <span class="nav-label">Scenes</span>
   </button>
   <button class="nav-tab" onclick="switchTab('effects',this)">
-    <span class="nav-icon">✨</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="m7 2 1.41 1.41L4.83 7H9v2H2V2h2v2.17L7 2m13.41 14.17L22 18l-5 2-2-5 1.41 1.41L19.17 13 13 6.83 11.59 8.24 10.17 6.83 12 5l8 9-1.59 1.17M2 11h7v2H2v-2m0 4h7v2H2v-2Z"/></svg></span>
     <span class="nav-label">Effects</span>
   </button>
   <button class="nav-tab" onclick="switchTab('lights',this)">
-    <span class="nav-icon">💡</span>
+    <span class="nav-icon"><svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A7 7 0 0 1 5 9a7 7 0 0 1 7-7m-2 16h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1z"/></svg></span>
     <span class="nav-label">Lights</span>
   </button>
 </nav>
 
-<!-- ══════════════ HOME ══════════════ -->
+<!-- ══ HOME ══ -->
 <div class="page active" id="page-home">
   <div class="page-header">
     <div>
-      <div class="page-title" id="greeting">Good evening</div>
+      <div class="page-title" id="greeting">Home</div>
       <div class="page-sub">Bedroom</div>
     </div>
-    <div class="header-right">
-      <div id="dot"></div>
-    </div>
+    <div id="dot"></div>
   </div>
 
-  <!-- Master brightness -->
   <div class="master-card">
-    <div class="master-top">
-      <div class="master-title">Brightness</div>
-      <div class="master-pct" id="master-bri-pct">50%</div>
+    <div class="master-row">
+      <span class="master-label">Brightness</span>
+      <span class="master-val" id="master-bri-pct">50%</span>
     </div>
-    <div class="master-slider-wrap">
-      <span class="master-icon">🌑</span>
-      <input type="range" min="1" max="254" value="127" id="master-bri"
-        style="flex:1"
-        oninput="setMasterBri(this.value)"
-        onpointerdown="_masterTouched=Date.now()"
-        ontouchstart="_masterTouched=Date.now()">
-      <span class="master-icon">☀️</span>
-    </div>
+    <input type="range" min="1" max="254" value="127" id="master-bri"
+      oninput="setMasterBri(this.value)"
+      onpointerdown="_masterTouched=Date.now()"
+      ontouchstart="_masterTouched=Date.now()">
   </div>
 
-  <!-- Rooms -->
   <div class="sec">
-    <div class="sec-label" style="margin-bottom:14px">Rooms</div>
+    <div class="sec-title">Rooms</div>
     <div class="rooms-grid" id="groups"></div>
   </div>
 
-  <!-- Profiles -->
   <div class="sec">
     <div class="sec-head">
-      <div class="sec-label">Mood</div>
-      <button class="add-btn" onclick="switchTab('scenes',document.querySelectorAll(\'.nav-tab\')[1])">Scenes →</button>
+      <div class="sec-title" style="margin:0">Presets</div>
+      <button class="btn-ghost" onclick="openQuickSave('preset')">Save current</button>
     </div>
-    <div class="profiles-scroll" id="profiles"></div>
+
+    <!-- quick-save inline form -->
+    <div class="add-form" id="quick-preset-form" style="margin-bottom:12px">
+      <div class="form-label">Save as preset</div>
+      <div class="form-row">
+        <input class="field" id="qp-name" placeholder="Name" onkeydown="if(event.key==='Enter')quickSavePreset()">
+        <button class="f-btn primary" style="flex:none;padding:0 18px;min-height:42px" onclick="quickSavePreset()">Save</button>
+      </div>
+      <button class="f-btn secondary" style="margin-top:2px" onclick="closeQuickSave('preset')">Cancel</button>
+    </div>
+
+    <div class="hscroll" id="profiles"></div>
+  </div>
+
+  <div class="sec">
+    <div class="sec-head">
+      <div class="sec-title" style="margin:0">Scenes</div>
+      <button class="btn-ghost" onclick="openQuickSave('scene')">Save current</button>
+    </div>
+
+    <!-- quick-save scene form -->
+    <div class="add-form" id="quick-scene-form" style="margin-bottom:12px">
+      <div class="form-label">Save as scene</div>
+      <div class="form-row">
+        <input class="field" id="qs-name" placeholder="Name" onkeydown="if(event.key==='Enter')quickSaveScene()">
+        <button class="f-btn primary" style="flex:none;padding:0 18px;min-height:42px" onclick="quickSaveScene()">Save</button>
+      </div>
+      <button class="f-btn secondary" style="margin-top:2px" onclick="closeQuickSave('scene')">Cancel</button>
+    </div>
+
+    <div class="hscroll" id="scenes-home"></div>
   </div>
 </div>
 
-<!-- ══════════════ SCENES ══════════════ -->
+<!-- ══ SCENES ══ -->
 <div class="page" id="page-scenes">
   <div class="page-header">
     <div class="page-title">Scenes</div>
-    <button class="add-btn" onclick="toggleForm('scene-form')">+ Add</button>
+    <button class="btn-ghost" onclick="toggleForm('scene-form')">+ New</button>
   </div>
-
   <div class="sec">
     <div class="add-form" id="scene-form">
-      <div class="form-title">New Scene</div>
-      <input class="field" id="sc-name" placeholder="Name  (e.g. Gaming)">
+      <div class="form-label">New Scene</div>
+      <input class="field" id="sc-name" placeholder="Name">
       <div class="form-row">
         <span class="field-label">Brightness</span>
         <input class="field" id="sc-bri" type="number" min="0" max="254" placeholder="0–254">
       </div>
       <div class="form-row">
         <span class="field-label">Colour temp</span>
-        <input class="field" id="sc-ct" type="number" min="150" max="500" placeholder="250 cool → 454 warm">
+        <input class="field" id="sc-ct" type="number" min="150" max="500" placeholder="250 cool · 454 warm">
       </div>
       <div class="form-row">
         <span class="field-label">Hue</span>
@@ -438,25 +471,30 @@
       </div>
     </div>
 
-    <!-- Favourites -->
-    <div class="sec-label" style="margin-bottom:12px">Favourites</div>
-    <div class="scenes-grid" id="scenes-fav"></div>
-
-    <!-- All scenes -->
-    <div id="scenes-rest-wrap">
-      <div class="scenes-divider">All Scenes</div>
-      <div class="scenes-grid" id="scenes-more"></div>
+    <div class="sec-head" style="margin-bottom:10px">
+      <div class="sec-title" style="margin:0">Favourites</div>
     </div>
+    <div class="hscroll" id="scenes-fav" style="margin-bottom:20px"></div>
 
-    <!-- Colours -->
-    <div class="scenes-divider" style="margin-top:24px">Colours</div>
-    <div class="colors-scroll" id="colors"></div>
+    <div class="sec-head" style="margin-bottom:10px">
+      <div class="sec-title" style="margin:0">All Scenes</div>
+    </div>
+    <div class="hscroll" id="scenes-more" style="margin-bottom:24px"></div>
 
-    <!-- Profile management -->
-    <div class="scenes-divider" style="margin-top:24px">Profiles</div>
+    <div class="sec-head" style="margin-bottom:10px">
+      <div class="sec-title" style="margin:0">Colours</div>
+    </div>
+    <div class="hscroll" id="colors" style="margin-bottom:28px"></div>
+
+    <div class="sep"></div>
+
+    <div class="sec-head" style="margin-bottom:10px">
+      <div class="sec-title" style="margin:0">Presets</div>
+      <button class="btn-ghost" onclick="toggleForm('profile-form')">+ New</button>
+    </div>
     <div class="add-form" id="profile-form" style="margin-bottom:12px">
-      <div class="form-title">New Profile</div>
-      <input class="field" id="pf-name" placeholder="Name  (e.g. Study)">
+      <div class="form-label">New Preset</div>
+      <input class="field" id="pf-name" placeholder="Name">
       <div class="form-row">
         <span class="field-label">Brightness</span>
         <input class="field" id="pf-bri" type="number" min="0" max="254" placeholder="0–254">
@@ -471,74 +509,64 @@
         <button class="f-btn primary" onclick="saveProfile()">Save</button>
       </div>
     </div>
-    <div style="display:flex;justify-content:flex-end;margin-bottom:12px">
-      <button class="add-btn" onclick="toggleForm('profile-form')">+ Profile</button>
-    </div>
-    <div class="profiles-scroll" id="profiles-full"></div>
+    <div class="hscroll" id="profiles-full"></div>
   </div>
 </div>
 
-<!-- ══════════════ EFFECTS ══════════════ -->
+<!-- ══ EFFECTS ══ -->
 <div class="page" id="page-effects">
   <div class="page-header">
     <div class="page-title">Effects</div>
-    <div style="display:flex;gap:8px;align-items:center">
-      <button onclick="stopEffects()" style="background:#ff375f22;border:1px solid #ff375f55;color:#ff375f;border-radius:10px;padding:5px 13px;font-size:13px;font-weight:600;cursor:pointer">⏹ Stop</button>
-      <button class="add-btn" onclick="toggleForm('effect-form')">+ Add</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn-danger" onclick="stopEffects()">Stop</button>
+      <button class="btn-ghost" onclick="toggleForm('effect-form')">+ New</button>
     </div>
   </div>
-
   <div class="sec">
     <div class="add-form" id="effect-form">
-      <div class="form-title">New Effect</div>
-      <input class="field" id="ef-name" placeholder="Name  (e.g. Blue pulse)">
+      <div class="form-label">New Effect</div>
+      <input class="field" id="ef-name" placeholder="Name">
       <div style="display:flex;align-items:center;gap:10px">
         <span style="font-size:13px;color:var(--dim)">Loop</span>
-        <input type="checkbox" id="ef-loop" checked style="width:20px;height:20px;accent-color:var(--gold)">
+        <input type="checkbox" id="ef-loop" checked style="width:18px;height:18px;accent-color:var(--accent)">
       </div>
-
       <div id="ef-steps-list" style="display:flex;flex-direction:column;gap:6px"></div>
-
-      <!-- Step builder -->
-      <div style="background:var(--card2);border-radius:14px;padding:12px;display:flex;flex-direction:column;gap:10px">
-        <div style="font-size:12px;font-weight:600;color:var(--dim);text-transform:uppercase;letter-spacing:.07em">Add step</div>
-        <div class="form-row" style="flex-wrap:wrap;gap:8px">
-          <select class="field" id="ef-step-type" onchange="renderStepFields()" style="min-width:120px;flex:none">
+      <div style="background:var(--card2);border-radius:10px;padding:12px;display:flex;flex-direction:column;gap:8px">
+        <div class="form-label" style="margin:0">Add step</div>
+        <div class="form-row" style="flex-wrap:wrap;gap:6px">
+          <select class="field" id="ef-step-type" onchange="renderStepFields()" style="min-width:110px;flex:none">
             <option value="brightness">Brightness</option>
             <option value="color">Colour</option>
             <option value="wait">Wait</option>
             <option value="on">On</option>
             <option value="off">Off</option>
           </select>
-          <div id="ef-step-bri-fields" style="display:flex;gap:6px;flex:1;min-width:120px">
-            <input class="field" id="ef-step-bri" type="number" min="1" max="254" placeholder="Brightness 1–254">
+          <div id="ef-step-bri-fields" style="display:flex;gap:6px;flex:1;min-width:100px">
+            <input class="field" id="ef-step-bri" type="number" min="1" max="254" placeholder="1–254">
           </div>
-          <div id="ef-step-col-fields" style="display:none;gap:6px;flex:1;min-width:180px">
-            <input class="field" id="ef-step-hue" type="number" min="0" max="360" placeholder="Hue 0–360">
-            <input class="field" id="ef-step-sat" type="number" min="0" max="100" placeholder="Sat 90">
+          <div id="ef-step-col-fields" style="display:none;gap:6px;flex:1;min-width:160px">
+            <input class="field" id="ef-step-hue" type="number" min="0" max="360" placeholder="Hue">
+            <input class="field" id="ef-step-sat" type="number" min="0" max="100" placeholder="Sat">
           </div>
-          <input class="field" id="ef-step-dur" type="number" min="0.1" step="0.1" value="1" placeholder="Sec" style="width:80px;flex:none">
-          <button class="f-btn primary" style="flex:none;padding:0 18px" onclick="addStep()">+ Step</button>
+          <input class="field" id="ef-step-dur" type="number" min="0.1" step="0.1" value="1" placeholder="s" style="width:70px;flex:none">
+          <button class="btn-accent" style="padding:0 14px;min-height:42px" onclick="addStep()">Add</button>
         </div>
       </div>
-
       <div class="form-actions">
         <button class="f-btn secondary" onclick="clearEffectForm();toggleForm('effect-form')">Cancel</button>
-        <button class="f-btn primary" onclick="saveCustomEffect()">Save effect</button>
+        <button class="f-btn primary" onclick="saveCustomEffect()">Save</button>
       </div>
     </div>
 
-    <!-- Firmware effects -->
-    <div class="sec-label" style="margin-bottom:14px">Firmware</div>
-    <div class="effects-grid" id="effects-firmware"></div>
+    <div class="sec-title">Built-in</div>
+    <div class="effects-list" id="effects-firmware"></div>
 
-    <!-- User effects -->
-    <div class="sec-label" style="margin-bottom:14px;margin-top:4px">Custom</div>
-    <div class="effects-grid" id="effects-user"></div>
+    <div class="sec-title">Custom</div>
+    <div class="effects-list" id="effects-user"></div>
   </div>
 </div>
 
-<!-- ══════════════ LIGHTS ══════════════ -->
+<!-- ══ LIGHTS ══ -->
 <div class="page" id="page-lights">
   <div class="page-header">
     <div class="page-title">Lights</div>
@@ -549,7 +577,6 @@
 </div>
 
 <script>
-// ── Tab navigation ────────────────────────────────────────
 function switchTab(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
@@ -557,7 +584,6 @@ function switchTab(id, btn) {
   btn.classList.add('active');
 }
 
-// ── API helper ────────────────────────────────────────────
 const api = (p, m='GET', b) => fetch(p, {
   method: m,
   headers: b ? {'Content-Type':'application/json'} : {},
@@ -568,53 +594,47 @@ function toggleForm(id) {
   document.getElementById(id).classList.toggle('open');
 }
 
-// ── Greeting ──────────────────────────────────────────────
 function setGreeting() {
   const h = new Date().getHours();
-  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
-  document.getElementById('greeting').textContent = g;
+  document.getElementById('greeting').textContent =
+    h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
 }
 
-// ── Room icons ────────────────────────────────────────────
-const ROOM_ICONS = { bedroom:'🛏️', desk:'🖥️', bedside:'🌙', ambient:'🪴', living:'🛋️', kitchen:'🍳' };
+// ── Room icons
+const ROOM_ICONS = { bedroom:'🛏', desk:'🖥', bedside:'🌙', ambient:'🪴', reading:'📖', living:'🛋', kitchen:'🍳' };
 
-// ── Groups ────────────────────────────────────────────────
 async function loadGroups() {
   const groups = await api('/groups');
   const el = document.getElementById('groups');
   el.innerHTML = '';
   for (const name of Object.keys(groups)) {
-    const icon = ROOM_ICONS[name] || '💡';
     el.innerHTML += `
       <div class="room-card" id="rcard-${name}">
-        <span class="room-icon">${icon}</span>
+        <div class="room-top">
+          <div class="room-icon-wrap">${ROOM_ICONS[name]||'💡'}</div>
+          <span class="room-status" id="rstatus-${name}">—</span>
+        </div>
         <div class="room-name">${name}</div>
         <div class="room-btns">
-          <button class="r-btn on"  onclick="api('/groups/${name}/on','PUT').then(refresh)">On</button>
-          <button class="r-btn off" onclick="api('/groups/${name}/off','PUT').then(refresh)">Off</button>
+          <button class="r-btn on"  onclick="event.stopPropagation();api('/groups/${name}/on','PUT').then(refresh)">On</button>
+          <button class="r-btn off" onclick="event.stopPropagation();api('/groups/${name}/off','PUT').then(refresh)">Off</button>
         </div>
       </div>`;
   }
 }
 
-// ── Profile icons ─────────────────────────────────────────
-const PROFILE_ICONS = {
-  bright:'☀️', focus:'🎯', reading:'📖', relax:'😌',
-  dim:'🌒', night:'🌑', off:'⭕'
-};
-
-function renderProfileCard(name, container, onApply, onDelete) {
-  const icon = PROFILE_ICONS[name] || '💡';
-  const card = document.createElement('div');
-  card.className = 'profile-card';
-  card.id = `pcard-${name}`;
-  card.innerHTML = `<span class="profile-icon">${icon}</span><span class="profile-name">${name}</span>`;
-  card.onclick = () => {
-    document.querySelectorAll('.profile-card').forEach(c => c.classList.remove('sel'));
-    document.querySelectorAll(`[id="pcard-${name}"]`).forEach(c => c.classList.add('sel'));
+// ── Profiles
+function renderProfileChip(name, container, onApply) {
+  const chip = document.createElement('button');
+  chip.className = 'profile-chip';
+  chip.id = `pchip-${name}-${container.id}`;
+  chip.textContent = name;
+  chip.onclick = () => {
+    document.querySelectorAll('.profile-chip').forEach(c => c.classList.remove('sel'));
+    document.querySelectorAll(`[id^="pchip-${name}-"]`).forEach(c => c.classList.add('sel'));
     onApply();
   };
-  container.appendChild(card);
+  container.appendChild(chip);
 }
 
 async function loadProfiles() {
@@ -624,21 +644,49 @@ async function loadProfiles() {
   el1.innerHTML = ''; el2.innerHTML = '';
   for (const name of Object.keys(profiles)) {
     const apply = () => api(`/profiles/${encodeURIComponent(name)}/apply`,'PUT').then(refresh);
-    renderProfileCard(name, el1, apply, null);
-    renderProfileCard(name, el2, apply,
-      () => api(`/profiles/${encodeURIComponent(name)}`, 'DELETE').then(loadProfiles)
-    );
+    renderProfileChip(name, el1, apply);
+    renderProfileChip(name, el2, apply);
   }
+}
+
+// ── Quick-save (Home tab)
+function openQuickSave(type) {
+  document.getElementById(`quick-${type}-form`).classList.add('open');
+  const inp = document.getElementById(type==='preset' ? 'qp-name' : 'qs-name');
+  inp.value = ''; inp.focus();
+}
+function closeQuickSave(type) {
+  document.getElementById(`quick-${type}-form`).classList.remove('open');
+}
+
+async function quickSavePreset() {
+  const name = document.getElementById('qp-name').value.trim();
+  if (!name) return;
+  const lights = await api('/lights');
+  const on = lights.filter(l => l.state === 'ON' && l.brightness != null);
+  if (!on.length) { alert('No lights are on.'); return; }
+  const bri = Math.round(on.reduce((a,b) => a+(b.brightness||0),0)/on.length);
+  const ct  = on.find(l => l.color_temp)?.color_temp ?? 300;
+  await api('/profiles', 'POST', {name, brightness: bri, color_temp: ct, transition: 1});
+  closeQuickSave('preset');
+  loadProfiles();
+}
+
+async function quickSaveScene() {
+  const name = document.getElementById('qs-name').value.trim();
+  if (!name) return;
+  await api('/scenes/capture', 'POST', {name});
+  closeQuickSave('scene');
+  loadScenes();
+  loadScenesHome();
 }
 
 async function captureProfile() {
   const lights = await api('/lights');
   const on = lights.filter(l => l.brightness != null && l.state === 'ON');
   if (on.length) {
-    const avg = Math.round(on.reduce((a,b) => a + (b.brightness||0), 0) / on.length);
-    const ct  = on[0].color_temp;
-    document.getElementById('pf-bri').value = avg;
-    if (ct) document.getElementById('pf-ct').value = ct;
+    document.getElementById('pf-bri').value = Math.round(on.reduce((a,b) => a+(b.brightness||0),0)/on.length);
+    if (on[0].color_temp) document.getElementById('pf-ct').value = on[0].color_temp;
   }
 }
 
@@ -653,18 +701,16 @@ async function saveProfile() {
   loadProfiles();
 }
 
-// ── Scene icons ───────────────────────────────────────────
+// ── Scenes
 const SCENE_ICONS = {
-  evening:'🌆', sunrise:'🌅', party:'🎉', pulse:'💓',
-  candlelight:'🕯️', cinema:'🎬', energise:'⚡', relax:'🌿',
-  gaming:'🎮', reading:'📖', chill:'❄️', romance:'🌹'
+  evening:'🌆', sunrise:'🌅', party:'🎉', pulse:'💓', candlelight:'🕯',
+  cinema:'🎬', energise:'⚡', relax:'🌿', gaming:'🎮', reading:'📖'
 };
-
-const FAV_KEY  = 'ls_favs';
+const FAV_KEY = 'ls_favs';
 const DEF_FAVS = ['evening','cinema','party'];
 let _allScenes = [];
 
-function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY)) || DEF_FAVS; } catch { return DEF_FAVS; } }
+function getFavs() { try { return JSON.parse(localStorage.getItem(FAV_KEY))||DEF_FAVS; } catch { return DEF_FAVS; } }
 function setFavs(f) { localStorage.setItem(FAV_KEY, JSON.stringify(f)); }
 function toggleFav(name) {
   const f = getFavs(), i = f.indexOf(name);
@@ -672,46 +718,49 @@ function toggleFav(name) {
   setFavs(f); renderScenes();
 }
 
-function makeSceneCard(name, isFav) {
-  const icon = SCENE_ICONS[name] || '🔆';
-  const card = document.createElement('div');
-  card.className = 'scene-card';
-  card.innerHTML = `
-    <span class="scene-icon">${icon}</span>
-    <div class="scene-info"><div class="scene-name">${name}</div></div>
-    <div class="scene-actions">
-      <button class="star-btn${isFav?' on':''}" title="${isFav?'Unpin':'Pin'}">${isFav?'★':'☆'}</button>
-      <button class="scene-del" title="Delete">×</button>
-    </div>`;
-  card.querySelector('.scene-card')?.addEventListener('click', () => {});
-  card.onclick = (e) => {
-    if (e.target.classList.contains('star-btn')) { toggleFav(name); return; }
-    if (e.target.classList.contains('scene-del')) {
+function makeSceneChip(name, isFav) {
+  const chip = document.createElement('div');
+  chip.className = 'scene-chip';
+  chip.innerHTML = `
+    <span class="scene-chip-icon">${SCENE_ICONS[name]||'🔆'}</span>
+    <span class="scene-chip-name">${name}</span>
+    <button class="scene-chip-star${isFav?' on':''}">${isFav?'★':'☆'}</button>
+    <button class="scene-chip-del">×</button>`;
+  chip.onclick = e => {
+    if (e.target.classList.contains('scene-chip-star')) { toggleFav(name); return; }
+    if (e.target.classList.contains('scene-chip-del')) {
       api(`/scenes/${encodeURIComponent(name)}`, 'DELETE').then(loadScenes); return;
     }
     api(`/scenes/${encodeURIComponent(name)}/apply`, 'PUT').then(refresh);
   };
-  return card;
+  return chip;
 }
 
 function renderScenes() {
   const favs   = getFavs();
   const pinned = _allScenes.filter(n => favs.includes(n));
   const rest   = _allScenes.filter(n => !favs.includes(n));
-
-  const favEl = document.getElementById('scenes-fav');
+  const favEl  = document.getElementById('scenes-fav');
   favEl.innerHTML = '';
-  if (pinned.length) pinned.forEach(n => favEl.appendChild(makeSceneCard(n, true)));
-  else favEl.innerHTML = '<div class="empty">Star scenes to pin them here</div>';
-
+  if (pinned.length) pinned.forEach(n => favEl.appendChild(makeSceneChip(n, true)));
+  else favEl.innerHTML = '<span class="empty">Star scenes to pin here</span>';
   const moreEl = document.getElementById('scenes-more');
   moreEl.innerHTML = '';
-  rest.forEach(n => moreEl.appendChild(makeSceneCard(n, false)));
+  rest.forEach(n => moreEl.appendChild(makeSceneChip(n, false)));
+}
+
+async function loadScenesHome() {
+  const names = Object.keys(await api('/scenes'));
+  const el = document.getElementById('scenes-home');
+  if (!el) return;
+  el.innerHTML = '';
+  const favs = getFavs();
+  const ordered = [...names.filter(n=>favs.includes(n)), ...names.filter(n=>!favs.includes(n))];
+  ordered.forEach(name => el.appendChild(makeSceneChip(name, favs.includes(name))));
 }
 
 async function loadScenes() {
-  const scenes = await api('/scenes');
-  _allScenes = Object.keys(scenes);
+  _allScenes = Object.keys(await api('/scenes'));
   renderScenes();
 }
 
@@ -740,59 +789,49 @@ async function saveScene() {
   loadScenes();
 }
 
-// ── Colours ───────────────────────────────────────────────
+// ── Colours
 const COLOR_HUES = { red:0, orange:25, yellow:55, green:120, cyan:180, blue:240, purple:280, pink:320 };
 
 async function loadColors() {
   const el = document.getElementById('colors');
   el.innerHTML = '';
   for (const [name, hue] of Object.entries(COLOR_HUES)) {
-    const pill = document.createElement('div');
-    pill.className = 'color-pill';
-    const circle = document.createElement('div');
-    circle.className = 'color-circle';
-    circle.style.background = `radial-gradient(circle at 32% 32%, hsl(${hue},80%,65%), hsl(${hue},75%,28%))`;
-    const label = document.createElement('div');
-    label.className = 'color-name';
-    label.textContent = name;
-    pill.append(circle, label);
-    pill.onclick = () => {
-      document.querySelectorAll('.color-pill').forEach(p => p.classList.remove('sel'));
-      pill.classList.add('sel');
+    const wrap = document.createElement('div');
+    wrap.className = 'color-dot-wrap';
+    const dot = document.createElement('div');
+    dot.className = 'color-dot';
+    dot.style.background = `radial-gradient(circle at 35% 35%, hsl(${hue},80%,65%), hsl(${hue},70%,32%))`;
+    const lbl = document.createElement('span');
+    lbl.className = 'color-dot-label';
+    lbl.textContent = name;
+    wrap.append(dot, lbl);
+    wrap.onclick = () => {
+      document.querySelectorAll('.color-dot-wrap').forEach(w => w.classList.remove('sel'));
+      wrap.classList.add('sel');
       api(`/colors/${name}/apply`, 'PUT').then(refresh);
     };
-    el.appendChild(pill);
+    el.appendChild(wrap);
   }
 }
 
-// ── Effects ───────────────────────────────────────────────
-const EFFECT_ICONS = {
-  colorloop:'🌈', stop_colorloop:'⏹️', breathe:'🌬️', blink:'⚡',
-  okay:'✅', finish:'🏁', stop:'⏹️',
-  'slow breathe':'😮‍💨', 'slow breathe long':'💤', 'fast pulse':'💥',
-  heartbeat:'❤️', 'rainbow slow':'🌈', 'rainbow fast':'⚡🌈',
-  'red blue strobe':'🚨', 'blue breathe':'🫧', 'red breathe':'🔴',
-  'purple breathe':'🟣', 'candle flicker':'🕯️', 'sunset fade':'🌇',
-  ocean:'🌊', 'northern lights':'🌌', 'wake up':'☀️', 'wind down':'😴'
-};
-
+// ── Effects
 let _pendingSteps = [];
 
 function renderStepFields() {
-  const type = document.getElementById('ef-step-type').value;
-  document.getElementById('ef-step-bri-fields').style.display = type === 'brightness' ? 'flex' : 'none';
-  document.getElementById('ef-step-col-fields').style.display = type === 'color'      ? 'flex' : 'none';
+  const t = document.getElementById('ef-step-type').value;
+  document.getElementById('ef-step-bri-fields').style.display = t==='brightness' ? 'flex' : 'none';
+  document.getElementById('ef-step-col-fields').style.display = t==='color'      ? 'flex' : 'none';
 }
 
 function addStep() {
   const type = document.getElementById('ef-step-type').value;
-  const dur  = parseFloat(document.getElementById('ef-step-dur').value) || 1;
-  const step = { type, duration: dur };
-  if (type === 'brightness') {
+  const dur  = parseFloat(document.getElementById('ef-step-dur').value)||1;
+  const step = {type, duration: dur};
+  if (type==='brightness') {
     const bri = parseInt(document.getElementById('ef-step-bri').value);
     if (isNaN(bri)) return;
     step.brightness = bri;
-  } else if (type === 'color') {
+  } else if (type==='color') {
     const hue = parseInt(document.getElementById('ef-step-hue').value);
     if (isNaN(hue)) return;
     step.hue = hue;
@@ -808,17 +847,14 @@ function renderStepList() {
   el.innerHTML = '';
   _pendingSteps.forEach((step, i) => {
     const row = document.createElement('div');
-    row.className = 'step-row';
-    let desc = '';
-    if (step.brightness != null) desc = `bri ${step.brightness}`;
-    else if (step.hue    != null) desc = `hue ${step.hue}° · sat ${step.saturation}`;
+    row.className = 'step-item';
+    let info = '';
+    if (step.brightness != null) info = `${step.brightness}`;
+    else if (step.hue   != null) info = `hue ${step.hue}° sat ${step.saturation}`;
     const del = document.createElement('button');
     del.className = 'step-del'; del.textContent = '×';
-    del.onclick = () => { _pendingSteps.splice(i, 1); renderStepList(); };
-    row.innerHTML = `
-      <span class="step-type-badge">${step.type}</span>
-      <span class="step-desc">${desc}</span>
-      <span class="step-dur">${step.duration}s</span>`;
+    del.onclick = () => { _pendingSteps.splice(i,1); renderStepList(); };
+    row.innerHTML = `<span class="step-badge">${step.type}</span><span class="step-info">${info}</span><span class="step-dur">${step.duration}s</span>`;
     row.appendChild(del);
     el.appendChild(row);
   });
@@ -834,15 +870,31 @@ function clearEffectForm() {
 async function saveCustomEffect() {
   const name = document.getElementById('ef-name').value.trim();
   if (!name || !_pendingSteps.length) return;
-  await api('/effects/custom', 'POST', { name, steps: _pendingSteps, loop: document.getElementById('ef-loop').checked });
-  clearEffectForm();
-  toggleForm('effect-form');
-  loadEffects();
+  await api('/effects/custom', 'POST', {name, steps: _pendingSteps, loop: document.getElementById('ef-loop').checked});
+  clearEffectForm(); toggleForm('effect-form'); loadEffects();
 }
 
 function stopEffects() {
   api('/effects/stop', 'PUT');
-  document.querySelectorAll('.effect-card').forEach(c => c.classList.remove('sel'));
+  document.querySelectorAll('.effect-row').forEach(r => r.classList.remove('sel'));
+}
+
+function makeEffectRow(name, tag, onTap, onDel) {
+  const row = document.createElement('div');
+  row.className = 'effect-row';
+  row.innerHTML = `<span class="effect-row-name">${name.replace(/_/g,' ')}</span><span class="effect-row-tag">${tag}</span>`;
+  if (onDel) {
+    const d = document.createElement('button');
+    d.className = 'effect-row-del'; d.textContent = '×';
+    d.onclick = e => { e.stopPropagation(); onDel(); };
+    row.appendChild(d);
+  }
+  row.onclick = () => {
+    document.querySelectorAll('.effect-row').forEach(r => r.classList.remove('sel'));
+    row.classList.add('sel');
+    onTap();
+  };
+  return row;
 }
 
 async function loadEffects() {
@@ -851,78 +903,62 @@ async function loadEffects() {
   const userEl = document.getElementById('effects-user');
   fwEl.innerHTML = ''; userEl.innerHTML = '';
 
-  for (const name of data.firmware) {
-    const card = document.createElement('div');
-    card.className = 'effect-card';
-    card.innerHTML = `
-      <div class="effect-icon">${EFFECT_ICONS[name] || '✨'}</div>
-      <div class="effect-name">${name.replace(/_/g,' ')}</div>
-      <div class="effect-type">Firmware</div>`;
-    card.onclick = () => {
-      document.querySelectorAll('.effect-card').forEach(c => c.classList.remove('sel'));
-      card.classList.add('sel');
-      api(`/effects/${name}/all`, 'PUT');
-    };
-    fwEl.appendChild(card);
-  }
+  data.firmware.forEach((name, i) => {
+    const row = makeEffectRow(name, 'built-in', () => api(`/effects/${name}/all`,'PUT'));
+    fwEl.appendChild(row);
+    if (i < data.firmware.length-1) {
+      const sep = document.createElement('div'); sep.className='effect-sep'; fwEl.appendChild(sep);
+    }
+  });
 
-  for (const [name] of Object.entries(data.user_defined || {})) {
-    const card = document.createElement('div');
-    card.className = 'effect-card';
-    card.innerHTML = `
-      <button class="effect-del" title="Delete">×</button>
-      <div class="effect-icon">${EFFECT_ICONS[name] || '⚙️'}</div>
-      <div class="effect-name">${name}</div>
-      <div class="effect-type">Custom</div>`;
-    card.querySelector('.effect-del').onclick = (e) => {
-      e.stopPropagation();
-      api(`/effects/custom/${encodeURIComponent(name)}`, 'DELETE').then(loadEffects);
-    };
-    card.onclick = () => {
-      document.querySelectorAll('.effect-card').forEach(c => c.classList.remove('sel'));
-      card.classList.add('sel');
-      api(`/effects/${encodeURIComponent(name)}/all`, 'PUT');
-    };
-    userEl.appendChild(card);
+  const ud = Object.keys(data.user_defined||{});
+  if (ud.length) {
+    ud.forEach((name, i) => {
+      const row = makeEffectRow(name, 'custom',
+        () => api(`/effects/${encodeURIComponent(name)}/all`,'PUT'),
+        () => api(`/effects/custom/${encodeURIComponent(name)}`,'DELETE').then(loadEffects)
+      );
+      userEl.appendChild(row);
+      if (i < ud.length-1) {
+        const sep = document.createElement('div'); sep.className='effect-sep'; userEl.appendChild(sep);
+      }
+    });
+  } else {
+    userEl.innerHTML = '<div class="empty">No custom effects — tap + New</div>';
   }
-
-  if (!Object.keys(data.user_defined || {}).length)
-    userEl.innerHTML = '<div class="empty">No custom effects yet — tap + Add above</div>';
 }
 
-// ── Individual lights ─────────────────────────────────────
-let _brTimers  = {};
-let _brTouched = {};
-let _masterTouched = 0;
-let _masterTimer   = null;
+// ── Lights
+let _brTimers={}, _brTouched={}, _masterTouched=0, _masterTimer=null;
 
 function setMasterBri(val) {
   _masterTouched = Date.now();
-  document.getElementById('master-bri-pct').textContent = Math.round(val / 2.54) + '%';
+  document.getElementById('master-bri-pct').textContent = Math.round(val/2.54)+'%';
   clearTimeout(_masterTimer);
-  _masterTimer = setTimeout(() => api(`/lights/all/brightness/${val}`, 'PUT'), 120);
+  _masterTimer = setTimeout(() => api(`/lights/all/brightness/${val}`,'PUT'), 120);
 }
 
 function updateMasterSlider(lights) {
-  if (Date.now() - _masterTouched < 3000) return;
-  const vals = lights.filter(l => l.brightness != null && l.state === 'ON').map(l => l.brightness);
+  if (Date.now()-_masterTouched < 3000) return;
+  const vals = lights.filter(l=>l.brightness!=null&&l.state==='ON').map(l=>l.brightness);
   if (!vals.length) return;
-  const avg = Math.round(vals.reduce((a,b) => a+b, 0) / vals.length);
+  const avg = Math.round(vals.reduce((a,b)=>a+b,0)/vals.length);
   document.getElementById('master-bri').value = avg;
-  document.getElementById('master-bri-pct').textContent = Math.round(avg / 2.54) + '%';
+  document.getElementById('master-bri-pct').textContent = Math.round(avg/2.54)+'%';
 }
 
+const BULB_SVG = `<svg viewBox="0 0 24 24"><path d="M12 2a7 7 0 0 1 7 7c0 2.38-1.19 4.47-3 5.74V17a1 1 0 0 1-1 1H9a1 1 0 0 1-1-1v-2.26A7 7 0 0 1 5 9a7 7 0 0 1 7-7m-2 16h4v1a1 1 0 0 1-1 1h-2a1 1 0 0 1-1-1v-1z"/></svg>`;
+
 function renderLights(lights) {
-  const el  = document.getElementById('lights');
+  const el = document.getElementById('lights');
   const now = Date.now();
   for (const light of lights) {
-    if (light.brightness == null && light.color_temp == null) continue;
-    const isOn = light.state === 'ON';
-    const pct  = light.brightness != null ? `${Math.round(light.brightness/2.54)}%` : null;
-    const col  = light.color?.hue != null
-      ? `${Math.round(light.color.hue)}° hue`
-      : (light.color_temp != null ? `${light.color_temp} K` : null);
-    const sub  = [pct, col].filter(Boolean).join(' · ');
+    if (light.brightness==null && light.color_temp==null) continue;
+    const isOn = light.state==='ON';
+    const pct  = light.brightness!=null ? `${Math.round(light.brightness/2.54)}%` : null;
+    const col  = light.color?.hue!=null ? `${Math.round(light.color.hue)}° hue`
+               : light.color_temp!=null ? `${light.color_temp} K` : null;
+    const sub  = [pct,col].filter(Boolean).join(' · ');
 
     let card = document.getElementById(`lcard-${light.name}`);
     if (!card) {
@@ -930,7 +966,7 @@ function renderLights(lights) {
       wrap.innerHTML = `
         <div class="light-card${isOn?' on':''}" id="lcard-${light.name}">
           <div class="light-row">
-            <div class="light-orb">💡</div>
+            <div class="light-bulb">${BULB_SVG}</div>
             <div class="light-info">
               <div class="light-name">${light.name.replace(/-/g,' ')}</div>
               <div class="light-sub" id="lsub-${light.name}">${sub||'—'}</div>
@@ -949,10 +985,9 @@ function renderLights(lights) {
     } else {
       card.className = `light-card${isOn?' on':''}`;
       document.getElementById(`lsub-${light.name}`).textContent = sub||'—';
-      document.getElementById(`lbr-${light.name}`).style.display = isOn ? 'block' : 'none';
+      document.getElementById(`lbr-${light.name}`).style.display = isOn?'block':'none';
       const r = document.getElementById(`lrange-${light.name}`);
-      if (r && ((_brTouched[light.name]||0) + 3000 < now) && light.brightness != null)
-        r.value = light.brightness;
+      if (r && ((_brTouched[light.name]||0)+3000<now) && light.brightness!=null) r.value=light.brightness;
     }
   }
 }
@@ -960,10 +995,9 @@ function renderLights(lights) {
 function setBri(name, val) {
   _brTouched[name] = Date.now();
   clearTimeout(_brTimers[name]);
-  _brTimers[name] = setTimeout(() => api(`/lights/${name}/brightness/${val}`, 'PUT'), 120);
+  _brTimers[name] = setTimeout(() => api(`/lights/${name}/brightness/${val}`,'PUT'), 120);
 }
 
-// ── Refresh ───────────────────────────────────────────────
 async function refresh() {
   try {
     const lights = await api('/lights');
@@ -973,13 +1007,12 @@ async function refresh() {
   } catch { document.getElementById('dot').className = 'err'; }
 }
 
-// ── Init ──────────────────────────────────────────────────
 async function init() {
   setGreeting();
   try {
-    await Promise.all([loadGroups(), loadProfiles(), loadScenes(), loadColors(), loadEffects()]);
+    await Promise.all([loadGroups(),loadProfiles(),loadScenes(),loadScenesHome(),loadColors(),loadEffects()]);
     await refresh();
-  } catch { document.getElementById('dot').className = 'err'; }
+  } catch { document.getElementById('dot').className='err'; }
   setInterval(refresh, 4000);
 }
 

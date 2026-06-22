@@ -26,6 +26,8 @@ devices:
     friendly_name: corner-lamp
   '0x94a081fffe838be2':
     friendly_name: Remote
+  '0xf84477fffeeec634':
+    friendly_name: reading-lamp
 groups:
   '1':
     friendly_name: bedroom-lights
