@@ -5,3 +5,12 @@ zigbee2mqtt-data/secret_key
 zigbee2mqtt-data/state.json
 zigbee2mqtt-data/database.db
 zigbee2mqtt-data/coordinator_backup.json
+
+# Zigbee dongle recovery: runtime artifacts (logs + scheduled-task state)
+*.log
+autoattach.state
+watchdog.state
+watchdog.pcbackoff
+
+# Timestamped data-dir backups
+zigbee2mqtt-data-backup-*/

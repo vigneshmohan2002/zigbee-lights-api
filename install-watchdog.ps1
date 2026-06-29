@@ -1,4 +1,4 @@
-<#
+﻿<#
     install-watchdog.ps1
     --------------------
     Registers the "ZigbeeDongleWatchdog" scheduled task that runs
@@ -10,7 +10,7 @@
 
 $ErrorActionPreference = 'Stop'
 
-# Must be elevated — PnP disable/enable and a Highest-privilege task both need admin.
+# Must be elevated --- PnP disable/enable and a Highest-privilege task both need admin.
 $id = [Security.Principal.WindowsIdentity]::GetCurrent()
 $pr = New-Object Security.Principal.WindowsPrincipal($id)
 if (-not $pr.IsInRole([Security.Principal.WindowsBuiltinRole]::Administrator)) {
@@ -47,4 +47,16 @@ Register-ScheduledTask -TaskName $TaskName -Action $action -Trigger @($trigger, 
 
 Write-Host "Registered scheduled task '$TaskName'." -ForegroundColor Green
 Get-ScheduledTask -TaskName $TaskName | Select-Object TaskName, State
+
+# Harden the usbipd service itself: make Windows auto-restart it if it crashes.
+# (When this service dies, every `usbipd attach` fails and nothing recovers --- the
+#  root cause of the 2026-06-27 outage.) reset= 0 means never reset the failure
+# counter; restart 5s after each of the first three failures.
+& sc.exe config usbipd start= auto | Out-Null
+& sc.exe failure usbipd reset= 0 actions= restart/5000/restart/5000/restart/5000 | Out-Null
+if (Test-Path "C:\Program Files\usbipd-win\usbipd.exe") {
+    if ((Get-Service usbipd).Status -ne 'Running') { Start-Service usbipd }
+}
+Write-Host "Configured usbipd service auto-restart on failure." -ForegroundColor Green
+
 Write-Host "Log file: $(Join-Path $PSScriptRoot 'watchdog.log')"
